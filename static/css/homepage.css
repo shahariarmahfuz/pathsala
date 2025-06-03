@@ -1,0 +1,205 @@
+/* static/css/homepage.css - Ultra Premium Homepage Styling */
+
+.homepage-container {
+    padding-top: 2rem; /* কন্টেন্টের উপরে স্পেস */
+    padding-bottom: 4rem; /* কন্টেন্টের নিচে স্পেস */
+}
+
+.page-main-title {
+    text-align: center;
+    color: var(--dark-color); /* থিমের ডার্ক কালার */
+    margin-bottom: 1rem; /* সাবটাইটেল থেকে দূরত্ব */
+    font-size: 2.8rem; /* আকর্ষণীয় ও বড় শিরোনাম */
+    font-weight: 700; /* Poppins Bold */
+    letter-spacing: -1px; /* অক্ষরগুলোর মধ্যে ফাঁক সমন্বয় */
+    line-height: 1.3;
+    /* text-shadow: 0 2px 4px rgba(0,0,0,0.05); /* খুবই হালকা টেক্সট শ্যাডো */
+}
+
+.page-subtitle {
+    text-align: center;
+    font-size: 1.25rem; /* সাবটাইটেলের ফন্ট সাইজ */
+    color: var(--text-light); /* হালকা টেক্সট রঙ */
+    margin-bottom: 3.5rem; /* ফিচার বক্স থেকে দূরত্ব */
+    line-height: 1.7;
+    max-width: 700px; /* সাবটাইটেলের প্রস্থ সীমাবদ্ধ করা */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Flashed Messages Container (Optional Styling) */
+.flashed-messages-container {
+    margin-bottom: 2.5rem;
+    max-width: 800px; /* এলার্ট মেসেজের প্রস্থ সীমাবদ্ধ করা */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Alert Messages Styling (Consistent with other premium pages) */
+.alert {
+    padding: 1.35rem 2rem; margin-bottom: 1.5rem; border: 1px solid transparent; border-radius: var(--radius-lg); font-weight: 500;
+    box-shadow: 0 8px 25px rgba(var(--dark-color-rgb, 26, 26, 46), 0.07), 0 4px 10px rgba(var(--dark-color-rgb, 26, 26, 46), 0.04);
+    display: flex; align-items: center; position: relative; overflow: hidden;
+}
+.alert:last-child { margin-bottom: 0; }
+.alert::before { font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 18px; font-size: 1.4em; flex-shrink: 0; opacity: 0.85; }
+.alert::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background-color: currentColor; opacity: 0.6; border-top-left-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-lg); }
+.alert-success { color: #0f5132; background-color: #f0fff4; border-color: #a3e9a4; }
+.alert-success::before { content: "\f058"; } .alert-success::after { background-color: #34c759; }
+.alert-warning { color: #664d03; background-color: #fffbeb; border-color: #ffeeba; }
+.alert-warning::before { content: "\f071"; } .alert-warning::after { background-color: #ffc107; }
+.alert-danger { color: #721c24; background-color: #fff5f5; border-color: #f5c6cb; }
+.alert-danger::before { content: "\f057"; } .alert-danger::after { background-color: #dc3545; }
+.alert-info { color: #055160; background-color: #e6f7ff; border-color: #b8e7f8; }
+.alert-info::before { content: "\f05a"; } .alert-info::after { background-color: #00bcd4; }
+
+
+/* Features Container */
+.features-container {
+    display: flex;
+    justify-content: center; /* আইটেমগুলো মাঝে রাখতে সাহায্য করবে যদি একটি লাইনে সম্পূর্ণ না ভরে */
+    flex-wrap: wrap;
+    margin-top: 2rem; /* উপ-শিরোনাম থেকে দূরত্ব */
+    gap: 30px; /* বক্সগুলোর মধ্যে গ্যাপ (উন্নত) */
+}
+
+.feature-box {
+    background-color: #ffffff; /* পরিষ্কার সাদা ব্যাকগ্রাউন্ড */
+    border: 1px solid #e8eef3; /* খুবই হালকা বর্ডার */
+    padding: 2.5rem; /* আকর্ষণীয় প্যাডিং */
+    border-radius: var(--radius-xl); /* আরও গোলাকার কোণ */
+    text-align: center;
+    flex-basis: calc(33.333% - 20px); /* (gap * (columns - 1) / columns) */
+    min-width: 280px; /* ন্যূনতম প্রস্থ */
+    max-width: 350px; /* একটি লাইনে ৩টির বেশি না হলে ভালো দেখাবে */
+    box-shadow: 0 10px 30px rgba(var(--dark-color-rgb, 26, 26, 46), 0.07), 0 5px 12px rgba(var(--dark-color-rgb, 26, 26, 46), 0.04); /* নরম, স্তরযুক্ত শ্যাডো */
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* কন্টেন্ট ও বাটন নিচে রাখতে */
+}
+
+.feature-box:hover {
+    transform: translateY(-8px) scale(1.02); /* উন্নত হোভার ইফেক্ট */
+    box-shadow: 0 18px 40px rgba(var(--dark-color-rgb, 26, 26, 46), 0.1), 0 10px 20px rgba(var(--dark-color-rgb, 26, 26, 46), 0.07); /* উন্নত হোভার শ্যাডো */
+}
+
+.feature-box .feature-icon {
+    font-size: 3rem; /* আইকন আরও বড় */
+    color: var(--primary-color);
+    margin-bottom: 1.5rem; /* শিরোনাম থেকে দূরত্ব */
+    line-height: 1;
+    /* background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); */
+    /* -webkit-background-clip: text; */
+    /* -webkit-text-fill-color: transparent; */
+    /* display: inline-block; */
+    transition: transform 0.3s ease;
+}
+.feature-box:hover .feature-icon {
+    transform: scale(1.1) rotate(-5deg); /* হোভারে আইকন অ্যানিমেশন */
+}
+
+
+.feature-box h2 {
+    margin-top: 0;
+    color: var(--dark-color); /* শিরোনামের রঙ পরিবর্তন */
+    font-size: 1.75em; /* ফন্ট সাইজ বৃদ্ধি */
+    font-weight: 700; /* Poppins Bold */
+    margin-bottom: 1rem; /* বর্ণনার আগে স্পেস */
+    letter-spacing: -0.3px;
+}
+
+.feature-box p {
+    color: var(--text-light); /* বর্ণনার রঙ হালকা */
+    line-height: 1.75; /* উন্নত লাইন হাইট */
+    font-size: 1em; /* ফন্ট সাইজ সমন্বয় */
+    flex-grow: 1; /* বর্ণনা যেন জায়গা নেয় */
+    margin-bottom: 1.8rem; /* বাটনের আগে স্পেস */
+}
+
+.feature-button { /* .button থেকে পরিবর্তিত */
+    margin-top: auto; /* বাটন নিচে রাখতে */
+    padding: 0.85rem 2rem; /* আকর্ষণীয় প্যাডিং */
+    font-size: 1em; /* ফন্ট সাইজ */
+    font-weight: 600; /* মিডিয়াম বোল্ড */
+    color: white;
+    background: var(--gradient-primary); /* থিমের প্রাইমারি গ্রেডিয়েন্ট */
+    border: none;
+    border-radius: var(--radius-lg); /* উন্নত রেডিয়াস */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 5px 15px rgba(var(--primary-color-rgb, 67, 97, 238), 0.25); /* উন্নত শ্যাডো */
+    text-transform: uppercase; /* বড় হাতের অক্ষর */
+    letter-spacing: 0.5px;
+    display: inline-flex; /* আইকন ও টেক্সট অ্যালাইনমেন্ট */
+    align-items: center;
+    justify-content: center;
+}
+.feature-button i {
+    margin-left: 10px; /* আইকনের জন্য স্পেস */
+    font-size: 0.9em;
+    transition: transform 0.3s ease;
+}
+
+.feature-button:hover {
+    background: var(--gradient-accent); /* হোভারে একসেন্ট গ্রেডিয়েন্ট */
+    box-shadow: 0 8px 20px rgba(var(--accent-color-rgb, 76, 201, 240), 0.3); /* উন্নত হোভার শ্যাডো */
+    transform: translateY(-3px); /* হালকা উপরে উঠবে */
+    color: white;
+}
+.feature-button:hover i {
+    transform: translateX(4px); /* হোভারে আইকন সরবে */
+}
+.feature-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(var(--primary-color-rgb, 67, 97, 238), 0.2);
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .feature-box {
+        flex-basis: calc(33.333% - 20px); /* এখনও ৩ কলাম, কিন্তু ছোট স্ক্রিনে গ্যাপ ঠিক রাখতে */
+    }
+}
+
+@media (max-width: 992px) { /* ট্যাবলেট */
+    .page-main-title { font-size: 2.4rem; }
+    .page-subtitle { font-size: 1.15rem; margin-bottom: 3rem; }
+    .features-container { gap: 25px; }
+    .feature-box {
+        flex-basis: calc(50% - 15px); /* ২ কলাম, (gap / columns) */
+        padding: 2rem; /* ট্যাবলেটে প্যাডিং সমন্বয় */
+    }
+    .feature-box h2 { font-size: 1.6em; }
+    .feature-box p { font-size: 0.95em; }
+    .feature-button { padding: 0.8rem 1.8rem; font-size: 0.95em;}
+}
+
+@media (max-width: 768px) { /* বড় মোবাইল */
+    .page-main-title { font-size: 2rem; letter-spacing: -0.5px; }
+    .page-subtitle { font-size: 1.1rem; margin-bottom: 2.5rem; }
+    .features-container { gap: 20px; }
+    .feature-box {
+        flex-basis: 100%; /* ১ কলাম */
+        max-width: 450px; /* মোবাইলে যেন বেশি চওড়া না হয় */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2rem 1.8rem; /* মোবাইলে প্যাডিং */
+    }
+    .feature-box .feature-icon { font-size: 2.5rem; margin-bottom: 1.2rem; }
+    .feature-box h2 { font-size: 1.5em; }
+    .feature-box p { font-size: 0.9em; margin-bottom: 1.5rem; }
+    .feature-button { width: 100%; padding: 0.9rem 1.5rem; font-size: 1em; }
+}
+
+@media (max-width: 480px) { /* ছোট মোবাইল */
+    .homepage-container { padding-top: 1rem; padding-bottom: 3rem; }
+    .page-main-title { font-size: 1.8rem; }
+    .page-subtitle { font-size: 1rem; margin-bottom: 2rem; }
+    .feature-box { padding: 1.8rem 1.5rem; }
+    .feature-box .feature-icon { font-size: 2.2rem; }
+    .feature-box h2 { font-size: 1.4em; }
+    .feature-box p { font-size: 0.88em; }
+    .feature-button { padding: 0.8rem 1.2rem; font-size: 0.95em; }
+}

@@ -1,0 +1,299 @@
+/* static/css/short_questions_home.css - Enhanced Premium & Mobile-First Styling */
+
+/* General Page Styles */
+.short-questions-container {
+    max-width: 900px;
+    margin: 2rem auto 4rem auto; /* মোবাইল ও ডেস্কটপের জন্য মার্জিন সমন্বয় */
+    padding: 0 10px; /* মোবাইলের জন্য সাইড প্যাডিং */
+}
+
+.page-title {
+    text-align: center;
+    font-size: 2.2rem; /* মোবাইলের জন্য সামান্য ছোট */
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    line-height: 1.3;
+}
+
+.back-to-home-link {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem; /* মোবাইলের জন্য সামান্য ছোট */
+}
+.back-to-home-link a {
+    color: var(--primary-color);
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    padding: 8px 12px; /* মোবাইলের জন্য প্যাডিং সমন্বয় */
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-medium), color var(--transition-medium), letter-spacing 0.3s ease, transform 0.3s ease;
+}
+.back-to-home-link a:hover {
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.07);
+    color: var(--secondary-color);
+    letter-spacing: 0.3px;
+    transform: translateY(-2px);
+}
+.back-to-home-link a i {
+    margin-right: 8px; /* আইকনের মার্জিন সমন্বয় */
+    font-size: 1em; /* আইকন সাইজ সমন্বয় */
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.back-to-home-link a:hover i {
+    transform: translateX(-4px) scale(1.04) rotate(-5deg);
+}
+
+.themed-hr-sq {
+    border: 0;
+    height: 1.5px;
+    background-image: linear-gradient(to right, transparent, rgba(var(--primary-color-rgb, 67, 97, 238), 0.3), transparent); /* প্রাইমারি কালার অ্যাকসেন্ট */
+    margin: 2rem auto 3rem auto;
+    width: 75%;
+}
+
+/* Alert Messages Styling (Consistent) */
+.alert {
+    padding: 1.2rem 1.8rem; margin-bottom: 2.5rem; border: 1px solid transparent; border-radius: var(--radius-lg); font-weight: 500;
+    box-shadow: 0 6px 20px rgba(var(--dark-color-rgb, 26, 26, 46), 0.06), 0 3px 8px rgba(var(--dark-color-rgb, 26, 26, 46), 0.03); /* নরম শ্যাডো */
+    display: flex; align-items: center; position: relative; overflow: hidden;
+}
+.alert::before { font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 15px; font-size: 1.3em; flex-shrink: 0; opacity: 0.8; }
+.alert::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background-color: currentColor; opacity: 0.6; border-top-left-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-lg); }
+.alert-success { color: #0f5132; background-color: #f0fff4; border-color: #a3e9a4; }
+.alert-success::before { content: "\f058"; } .alert-success::after { background-color: #34c759; }
+.alert-warning { color: #664d03; background-color: #fffbeb; border-color: #ffeeba; }
+.alert-warning::before { content: "\f071"; } .alert-warning::after { background-color: #ffc107; }
+.alert-danger { color: #721c24; background-color: #fff5f5; border-color: #f5c6cb; }
+.alert-danger::before { content: "\f057"; } .alert-danger::after { background-color: #dc3545; }
+.alert-info { color: #055160; background-color: #e6f7ff; border-color: #b8e7f8; }
+.alert-info::before { content: "\f05a"; } .alert-info::after { background-color: #00bcd4; }
+
+
+/* Selection Group & List (Ultra Premium - consistent) */
+.selection-group { margin-bottom: 2.5rem; } /* মোবাইলের জন্য মার্জিন সমন্বয় */
+.selection-group.card-style {
+    padding: 2rem; /* মোবাইলের জন্য প্যাডিং সমন্বয় */
+    background-color: #ffffff; border-radius: var(--radius-xl);
+    box-shadow: 0 10px 30px rgba(var(--dark-color-rgb, 26, 26, 46), 0.08), 0 5px 15px rgba(var(--dark-color-rgb, 26, 26, 46), 0.05);
+    border: 1px solid #f0f3f7;
+}
+.selection-group label {
+    display: block; margin-bottom: 1.2rem; font-weight: 700; color: var(--dark-color);
+    font-size: 1.15rem; /* মোবাইলের জন্য লেবেল ফন্ট সাইজ */
+    line-height: 1.45; letter-spacing: -0.1px;
+}
+.selection-list { list-style-type: none; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 0.8rem; } /* গ্যাপ সমন্বয় */
+.selection-list li {
+    padding: 0.8rem 1.5rem; /* মোবাইলের জন্য চিপসের প্যাডিং */
+    border: 2px solid transparent; border-radius: var(--radius-full); cursor: pointer;
+    background-color: #f5f7fa; color: var(--text-color); font-weight: 600; font-size: 0.95rem; /* মোবাইলের জন্য ফন্ট সাইজ */
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 2px 6px rgba(var(--dark-color-rgb, 26, 26, 46), 0.03);
+    display: inline-flex; align-items: center;
+}
+.selection-list li:not(.list-item-message):hover {
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.05);
+    border-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.4);
+    color: var(--primary-color); transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 15px rgba(var(--primary-color-rgb, 67, 97, 238), 0.1), 0 3px 6px rgba(0,0,0,0.04);
+}
+.selection-list li.active {
+    background: var(--gradient-primary); color: white; border-color: transparent; font-weight: 700;
+    box-shadow: 0 8px 22px rgba(var(--primary-color-rgb, 67, 97, 238), 0.35), 0 4px 10px rgba(var(--primary-color-rgb, 67, 97, 238), 0.2);
+    transform: translateY(-2px) scale(1.03);
+}
+.selection-list li.active::before { font-family: "Font Awesome 6 Free"; content: "\f00c"; font-weight: 900; margin-right: 10px; font-size: 0.85em; opacity: 0.9; }
+.selection-list li.list-item-message {
+    background-color: transparent !important; border: none !important; color: var(--text-light) !important; cursor: default !important; font-style: italic;
+    box-shadow: none !important; padding: 0.7rem 0 !important; width: 100%; text-align: center; font-size: 0.95rem; display: flex;
+    justify-content: center; align-items: center; transform: none !important;
+}
+.selection-list li.list-item-message::before { content: "" !important; margin-right: 0 !important; font-size: 1.1em !important; }
+.selection-list li.list-item-empty::before { content: "\f1b2"; color: var(--warning-color); }
+.selection-list li.list-item-error::before { content: "\f071"; color: var(--danger-color); }
+
+/* Short Question Display Area (refined for mobile) */
+#current-chapter-name-sq {
+    font-size: 1.7em; /* মোবাইলের জন্য অধ্যায়ের নাম */
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2.5px solid transparent;
+    border-image: var(--gradient-accent) 1;
+    text-align: center;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+#short-questions-list { margin-top: 1.2rem; } /* প্রশ্ন আইটেমগুলোর উপরে গ্যাপ */
+
+.short-question-item {
+    background-color: #fff;
+    border: 1px solid #e9eef3;
+    padding: 1.8rem 2rem; /* মোবাইলের জন্য প্যাডিং সমন্বয় */
+    margin-bottom: 2rem; /* আইটেমগুলোর মধ্যে স্পেস */
+    border-radius: var(--radius-lg); /* মোবাইলের জন্য সামঞ্জস্যপূর্ণ রেডিয়াস */
+    box-shadow: 0 8px 25px rgba(var(--dark-color-rgb, 26, 26, 46), 0.06), 0 4px 10px rgba(var(--dark-color-rgb, 26, 26, 46), 0.04); /* নরম শ্যাডো */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.short-question-item:hover { /* ঐচ্ছিক হোভার ইফেক্ট */
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(var(--dark-color-rgb, 26, 26, 46), 0.08), 0 6px 12px rgba(var(--dark-color-rgb, 26, 26, 46), 0.05);
+}
+
+/* *** নতুনঃ হেডার কন্টেইনার ফর ফ্লেক্সবক্স *** */
+.sq-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* উপরের দিকে অ্যালাইন */
+    gap: 15px; /* প্রশ্ন ও ব্যাজের মধ্যে গ্যাপ */
+    margin-bottom: 1rem; /* প্রশ্নের শিরোনাম ও উত্তরের মধ্যে গ্যাপ */
+}
+
+.short-question-item .question-title {
+    margin-top: 0;
+    color: var(--dark-color);
+    font-size: 1.2em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    font-weight: 600;
+    line-height: 1.65; /* লাইন হাইট সমন্বয় */
+    flex-grow: 1; /* প্রশ্ন টেক্সট যেন পুরো জায়গা নেয় */
+    margin-bottom: 0; /* যেহেতু হেডার ডিভে আছে */
+    display: flex; /* q-label ও q-text এর জন্য */
+}
+.short-question-item .question-title .q-label {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-right: 8px; /* লেবেল থেকে টেক্সটের দূরত্ব */
+    white-space: nowrap; /* "প্রশ্ন:" যেন ভেঙ্গে না যায় */
+}
+.short-question-item .question-title .q-text {
+    flex: 1;
+}
+
+.short-question-item .answer-text {
+    color: #3e5165;
+    margin-bottom: 0;
+    padding: 1rem 1.2rem; /* মোবাইলের জন্য প্যাডিং */
+    border-left: 4px solid var(--accent-color); /* অ্যাকসেন্ট বর্ডার */
+    line-height: 1.8;
+    background-color: rgba(var(--accent-color-rgb, 76, 201, 240), 0.03); /* খুবই হালকা অ্যাকসেন্ট ব্যাকগ্রাউন্ড */
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 1rem; /* মোবাইলের জন্য ফন্ট সাইজ */
+    display: flex;
+}
+.short-question-item .answer-text .a-label {
+    color: var(--accent-color);
+    font-weight: 700;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+.short-question-item .answer-text .a-content {
+    flex: 1;
+}
+
+.seen-badge-sq {
+    /* position: absolute; top: 20px; right: 20px; - সরানো হয়েছে */
+    background: linear-gradient(45deg, var(--warning-color), #ffd16a); /* উন্নত হলুদ গ্রেডিয়েন্ট */
+    color: #533f00;
+    padding: 0.4em 0.8em; /* মোবাইলের জন্য প্যাডিং */
+    font-size: 0.75em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(var(--warning-color-rgb, 249, 199, 79), 0.3);
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0; /* ব্যাজ যেন ছোট না হয়ে যায় */
+    height: fit-content; /* কন্টেন্ট অনুযায়ী উচ্চতা */
+    /* margin-top: 3px; /* প্রশ্ন টেক্সটের সাথে অ্যালাইনমেন্টের জন্য সামান্য সমন্বয় */
+}
+.seen-badge-sq i { margin-right: 5px; font-size: 0.9em;}
+
+/* Pagination Controls (Consistent with premium styling, mobile optimized) */
+.pagination-controls {
+    margin-top: 3rem; text-align: center; padding: 1.2rem 0; border-top: 1.5px solid #e8eef3;
+}
+.pagination-button {
+    margin: 0 10px; /* মোবাইলের জন্য মার্জিন */
+    padding: 0.8rem 1.8rem; /* মোবাইলের জন্য প্যাডিং */
+    font-size: 0.95em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    font-weight: 700; color: white;
+    background: var(--gradient-primary); border: none; border-radius: var(--radius-lg); cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 5px 18px rgba(var(--primary-color-rgb, 67, 97, 238), 0.3), inset 0 -1px 2px rgba(0,0,0,0.1);
+    display: inline-flex; align-items: center; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pagination-button:disabled {
+    background: #d8dde2; color: #8a99a8; cursor: not-allowed; box-shadow: none; opacity: 0.8;
+}
+.pagination-button:not(:disabled):hover {
+    background: var(--gradient-accent);
+    box-shadow: 0 8px 22px rgba(var(--accent-color-rgb, 76, 201, 240), 0.35), inset 0 -1px 2px rgba(0,0,0,0.1);
+    transform: translateY(-3px) scale(1.02);
+}
+.pagination-button:not(:disabled):active {
+    transform: translateY(-1px) scale(0.99);
+    box-shadow: 0 3px 12px rgba(var(--primary-color-rgb, 67, 97, 238), 0.25);
+}
+.pagination-button i { font-size: 0.9em; transition: transform 0.3s ease; }
+.pagination-button:hover i { transform: scale(1.1); }
+.pagination-button .fa-chevron-left { margin-right: 8px;}
+.pagination-button .fa-chevron-right { margin-left: 8px;}
+#sq-page-info {
+    margin: 0 15px; /* মোবাইলের জন্য মার্জিন */
+    font-weight: 700; font-size: 1.1em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    color: var(--dark-color); vertical-align: middle;
+}
+
+/* Loading and Empty/Error Messages (Consistent premium styling) */
+.loading-indicator-sq {
+    display: none; align-items: center; justify-content: center; font-size: 1.15em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    color: var(--text-light); margin-top: 2.5rem; padding: 1.5rem; /* মোবাইলের জন্য প্যাডিং */
+    background-color: #fff; border-radius: var(--radius-lg);
+    border: 1px solid #e8eef3; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.loading-indicator-sq i { margin-right: 12px; color: var(--primary-color); font-size: 1.4em; animation: spin-premium 1.2s linear infinite; }
+.loading-indicator-sq p { margin:0; font-weight: 500; }
+@keyframes spin-premium { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* For messages generated by JS in questionsListDiv */
+#short-questions-list .content-message {
+    text-align: center; padding: 2rem; /* মোবাইলের জন্য প্যাডিং */
+    font-size: 1.1em; /* মোবাইলের জন্য ফন্ট সাইজ */
+    color: var(--text-light); background-color: #fdfdff; border: 1.5px dashed #dde5ed;
+    border-radius: var(--radius-lg); margin-top: 1.2rem; /* মার্জিন সমন্বয় */
+    font-weight: 500;
+}
+#short-questions-list .content-message i { display: block; font-size: 2.5em; margin-bottom: 1rem; opacity: 0.5; }
+#short-questions-list .content-message.message-error {
+    color: var(--danger-color); border-color: rgba(var(--danger-color-rgb), 0.4);
+    background-color: rgba(var(--danger-color-rgb), 0.04);
+}
+#short-questions-list .content-message.message-error i { color: var(--danger-color); }
+#short-questions-list .content-message.message-empty i,
+#short-questions-list .content-message.message-info i { color: var(--primary-color); opacity: 0.4;}
+
+
+/* Responsive Adjustments for very small screens */
+@media (max-width: 480px) {
+    .short-questions-container { margin-top: 1.5rem; }
+    .page-title { font-size: 1.7rem; }
+    .back-to-home-link { margin-bottom: 2rem; font-size: 0.9rem; }
+    .selection-group.card-style { padding: 1.5rem 1rem; }
+    .selection-list { gap: 10px; }
+    .selection-list li { font-size: 0.9rem; padding: 0.7rem 1.2rem; }
+    #current-chapter-name-sq { font-size: 1.3em; margin-bottom: 1.5rem; }
+    .short-question-item { padding: 1.5rem 1rem; margin-bottom: 1.5rem;}
+    .short-question-item .question-title { font-size: 1.1em; }
+    .short-question-item .answer-text { font-size: 0.95em; padding: 0.8rem 1rem; }
+    .seen-badge-sq { font-size: 0.7em; padding: 0.35em 0.7em; top: 15px; right: 15px;}
+    .pagination-button { padding: 0.7rem 1.3rem; font-size: 0.9em; margin: 0 8px; }
+    #sq-page-info { font-size: 1em; margin: 0 10px;}
+    .loading-indicator-sq, #short-questions-list .content-message { padding: 1.2rem; font-size: 1em;}
+    .loading-indicator-sq i, #short-questions-list .content-message i { font-size: 1.2em; margin-right: 8px;}
+}

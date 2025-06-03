@@ -1,0 +1,418 @@
+/* static/css/mcq_home.css (Further Enhanced Premium Version) */
+
+/* General Page Styles */
+.container h1 {
+    color: var(--dark-color);
+    margin-top: 1.5rem; /* শিরোনামটিকে সামান্য নিচে নামানো হয়েছে */
+    margin-bottom: 1rem; /* নিচেও কিছুটা অতিরিক্ত স্পেস */
+    font-size: 2.35rem; /* শিরোনামের ফন্ট সাইজ সামান্য বৃদ্ধি */
+    font-weight: 700; /* নিশ্চিত করা হচ্ছে এটি বোল্ড */
+    text-align: center; /* শিরোনামটি মাঝে আনতে পারেন যদি চান */
+}
+
+.back-to-home {
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+    text-align: center; /* এটিকেও মাঝে আনতে পারেন */
+}
+
+.back-to-home a {
+    color: var(--primary-color);
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px; /* প্যাডিং বৃদ্ধি */
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.back-to-home a:hover {
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.1); /* হালকা ব্যাকগ্রাউন্ড হোভারে */
+    color: var(--secondary-color);
+}
+
+.back-to-home a i {
+    margin-right: 10px;
+    transition: transform 0.2s ease-out;
+}
+.back-to-home a:hover i {
+    transform: translateX(-4px);
+}
+
+.themed-hr {
+    border: 0;
+    height: 1.5px;
+    background-image: linear-gradient(to right, transparent, var(--accent-color), transparent);
+    margin: 2.5rem auto; /* মার্জিন বৃদ্ধি */
+    width: 70%; /* প্রস্থ সামান্য কমানো */
+}
+
+/* Alert Messages Styling (Enhanced with Icons & Depth) */
+.alert {
+    padding: 1.25rem 1.75rem; /* প্যাডিং বৃদ্ধি */
+    margin-bottom: 2.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08), 0 2px 5px rgba(0,0,0,0.05); /* আরও গভীর শ্যাডো */
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 15px; /* আইকনের জন্য বেশি স্পেস */
+    font-size: 1.3em; /* আইকন সামান্য বড় */
+    flex-shrink: 0; /* আইকন যেন ছোট না হয়ে যায় */
+}
+.alert::after { /* সাইড একসেন্ট বার */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 8px; /* বার আরও মোটা */
+    background-color: currentColor;
+    opacity: 0.7;
+    border-top-left-radius: var(--radius-lg); /* বারের কোণা রাউন্ডেড */
+    border-bottom-left-radius: var(--radius-lg);
+}
+
+.alert-success { color: #0c4b30; background-color: #e6f6e9; border-color: #34c759; }
+.alert-success::before { content: "\f058"; }
+.alert-success::after { background-color: #34c759; }
+
+.alert-warning { color: #7d5100; background-color: #fff8e1; border-color: #ff9f0a; }
+.alert-warning::before { content: "\f071"; }
+.alert-warning::after { background-color: #ff9f0a; }
+
+.alert-danger { color: #8c2222; background-color: #ffebee; border-color: #ff3b30; }
+.alert-danger::before { content: "\f057"; }
+.alert-danger::after { background-color: #ff3b30; }
+
+.alert-info { color: #005580; background-color: #e0f7fa; border-color: #00bcd4; }
+.alert-info::before { content: "\f05a"; }
+.alert-info::after { background-color: #00bcd4; }
+
+
+/* Form Styling (Enhanced Card Look) */
+#mcqSetupForm .selection-group {
+    margin-bottom: 3rem; /* বেশি স্পেস */
+    padding: 2.5rem; /* আরও বেশি প্যাডিং */
+    background-color: #ffffff;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 10px 30px rgba(var(--dark-color-rgb, 26, 26, 46), 0.08), 0 4px 12px rgba(var(--dark-color-rgb, 26, 26, 46), 0.05); /* উন্নত লেয়ারড শ্যাডো */
+    border: 1px solid #f0f3f7; /* খুবই হালকা বর্ডার */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+/*
+#mcqSetupForm .selection-group:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(var(--dark-color-rgb, 26, 26, 46), 0.1), 0 6px 15px rgba(var(--dark-color-rgb, 26, 26, 46), 0.07);
+}
+*/
+
+#mcqSetupForm .selection-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.selection-group label,
+.selection-group .group-label {
+    display: block;
+    margin-bottom: 1.2rem; /* লেবেলের নিচে বেশি স্পেস */
+    font-weight: 700;
+    color: var(--dark-color);
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.selection-group input[type="number"],
+.selection-group select {
+    width: 100%;
+    padding: 0.9rem 1.3rem; /* ইনপুটে প্যাডিং বৃদ্ধি */
+    border: 1.5px solid #dde2e9; /* ইনপুটের বর্ডার উন্নত */
+    border-radius: var(--radius-md);
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: #f9fafc; /* ইনপুটের হালকা ব্যাকগ্রাউন্ড */
+    color: var(--text-color);
+    transition: border-color var(--transition-medium), box-shadow var(--transition-medium), background-color var(--transition-medium);
+}
+
+.selection-group input[type="number"]:focus,
+.selection-group select:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb, 67, 97, 238), 0.15); /* ফোকাস শ্যাডো আরও সূক্ষ্ম */
+    outline: none;
+}
+
+/* Selection List (Subjects/Chapters) - Highly Enhanced */
+.selection-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px; /* গ্যাপ বৃদ্ধি */
+    margin-top: 1rem;
+}
+
+.selection-list li {
+    padding: 0.8rem 1.6rem; /* প্যাডিং বৃদ্ধি */
+    border: 1.5px solid transparent; /* ডিফল্ট বর্ডার ট্রান্সপারেন্ট */
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    background-color: #f0f4f8; /* হালকা নিউট্রাল ব্যাকগ্রাউন্ড */
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1rem; /* ফন্ট সাইজ বৃদ্ধি */
+    transition: all var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1); /* স্মুথ ট্রানজিশন */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.04); /* সূক্ষ্ম ডিফল্ট শ্যাডো */
+    display: inline-flex; /* আইকন ও টেক্সট অ্যালাইনমেন্টের জন্য */
+    align-items: center;
+}
+.selection-list li::before { /* সাধারণ আইটেমের জন্য কোনো আইকন নয় */
+    content: "";
+    margin-right: 0;
+}
+
+
+.selection-list li:hover {
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.08); /* প্রাইমারি কালারের হালকা শেড */
+    border-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.3);
+    color: var(--primary-color);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 12px rgba(var(--primary-color-rgb, 67, 97, 238), 0.1), 0 3px 6px rgba(0,0,0,0.06); /* হোভার শ্যাডো */
+}
+
+.selection-list li.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(var(--primary-color-rgb, 67, 97, 238), 0.35), 0 4px 10px rgba(var(--primary-color-rgb, 67, 97, 238), 0.2); /* শক্তিশালী অ্যাক্টিভ শ্যাডো */
+    transform: translateY(-2px) scale(1.05); /* অ্যাক্টিভ স্কেল সামান্য বেশি */
+}
+.selection-list li.active::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f00c"; /* fa-check */
+    font-weight: 900;
+    margin-right: 10px; /* আইকনের জন্য বেশি স্পেস */
+    font-size: 0.9em;
+    opacity: 0.85; /* আইকন সামান্য ট্রান্সপারেন্ট */
+}
+
+/* Special list items for messages - Improved */
+.selection-list li.list-item-message {
+    background-color: transparent;
+    border: none;
+    color: var(--text-light);
+    cursor: default;
+    font-style: italic;
+    box-shadow: none;
+    padding: 0.8rem 0; /* প্যাডিং বৃদ্ধি */
+    width: 100%;
+    text-align: center;
+    font-size: 0.95rem; /* মেসেজের ফন্ট সাইজ */
+    display: flex; /* আইকন অ্যালাইনমেন্টের জন্য */
+    justify-content: center;
+    align-items: center;
+}
+.selection-list li.list-item-message:hover {
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    color: var(--text-light);
+}
+
+.selection-list li.list-item-empty::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f1b2"; /* fa-cube or a similar 'empty' icon */
+    font-weight: 400;
+    margin-right: 10px;
+    color: var(--warning-color);
+    font-size: 1.1em;
+}
+
+.selection-list li.list-item-error::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f071"; /* fa-triangle-exclamation (was circle-exclamation) */
+    font-weight: 900;
+    margin-right: 10px;
+    font-size: 1.1em;
+}
+
+
+/* Quiz Mode Selection - Refined */
+.quiz-mode-selection {
+    margin-bottom: 2.5rem;
+    border: 1.5px dashed #dde2e9; /* ড্যাশড বর্ডার */
+    padding: 2rem; /* প্যাডিং বৃদ্ধি */
+    border-radius: var(--radius-lg);
+    background-color: #fdfdff; /* আগের মতোই */
+}
+.quiz-mode-selection .group-label {
+    font-size: 1.1rem; /* ফন্ট সাইজ বৃদ্ধি */
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem; /* মার্জিন বৃদ্ধি */
+    padding: 12px 15px; /* প্যাডিং বৃদ্ধি */
+    border-radius: var(--radius-md);
+    border: 1px solid transparent; /* হোভারের জন্য বর্ডার প্রস্তুত */
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.radio-option:hover {
+    background-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.06);
+    border-color: rgba(var(--primary-color-rgb, 67, 97, 238), 0.2);
+}
+
+.radio-option:last-child {
+    margin-bottom: 0;
+}
+
+.quiz-mode-selection input[type="radio"] {
+    margin-right: 15px; /* বেশি স্পেস */
+    accent-color: var(--primary-color);
+    transform: scale(1.3); /* রেডিও বাটন আরও বড় */
+    cursor: pointer;
+}
+
+.quiz-mode-selection input[type="radio"] + label {
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.05rem; /* ফন্ট সাইজ বৃদ্ধি */
+    margin-bottom: 0;
+    transition: color var(--transition-fast), font-weight var(--transition-fast);
+}
+.quiz-mode-selection input[type="radio"]:checked + label {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+
+/* Number of Questions Input */
+#num_questions_mcq {
+    margin-top: 1rem; /* উপরে মার্জিন */
+    margin-bottom: 2.5rem;
+}
+
+/* Submit Button - Highly Enhanced */
+.button.quiz-start-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 1rem 2.8rem; /* খুবই আকর্ষণীয় প্যাডিং */
+    font-size: 1.15rem; /* ফন্ট সাইজ বৃদ্ধি */
+    font-weight: 700;
+    color: white;
+    background: var(--gradient-primary); /* আগের মতোই */
+    border: none;
+    border-radius: var(--radius-lg); /* var(--radius-xl) ও ব্যবহার করা যেতে পারে আরও রাউন্ডেড করতে */
+    cursor: pointer;
+    transition: all var(--transition-medium) cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 5px 18px rgba(var(--primary-color-rgb, 67, 97, 238), 0.4), 0 2px 8px rgba(var(--primary-color-rgb, 67, 97, 238), 0.25); /* আরও আকর্ষণীয় শ্যাডো */
+    text-align: center;
+    letter-spacing: 0.6px; /* অক্ষরগুলোর মধ্যে ফাঁকা স্থান */
+    text-transform: uppercase; /* বাটন টেক্সট বড় হাতের */
+}
+
+.button.quiz-start-button::after {
+    font-family: "Font Awesome 6 Free";
+    content: "\f04b"; /* fa-play আইকন */
+    font-weight: 900;
+    margin-left: 15px; /* আইকনের জন্য বেশি স্পেস */
+    font-size: 1em; /* বাটনের ফন্টের সমান */
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+    opacity: 0.9;
+}
+
+.button.quiz-start-button:hover {
+    background: var(--gradient-accent);
+    box-shadow: 0 8px 25px rgba(var(--accent-color-rgb, 76, 201, 240), 0.45), 0 4px 12px rgba(var(--accent-color-rgb, 76, 201, 240), 0.3); /* উন্নত হোভার শ্যাডো */
+    transform: translateY(-4px) scale(1.03); /* উন্নত হোভার ইফেক্ট */
+    color: white;
+}
+.button.quiz-start-button:hover::after {
+    transform: translateX(6px) scale(1.15) rotate(10deg); /* আইকন অ্যানিমেশন */
+    opacity: 1;
+}
+
+.button.quiz-start-button:active {
+    transform: translateY(-2px) scale(0.99); /* উন্নত ক্লিক ইফেক্ট */
+    box-shadow: 0 3px 12px rgba(var(--primary-color-rgb, 67, 97, 238), 0.35);
+}
+
+
+/* Responsive Adjustments - Refined */
+@media (max-width: 768px) {
+    .container h1 {
+        font-size: 2rem; /* মোবাইল H1 */
+        margin-top: 1rem;
+    }
+    #mcqSetupForm .selection-group {
+        padding: 2rem; /* মোবাইলে প্যাডিং */
+        border-radius: var(--radius-lg);
+    }
+    .selection-list li {
+        padding: 0.7rem 1.3rem;
+        font-size: 0.95rem;
+    }
+    .selection-list li.active::before {
+        margin-right: 8px;
+        font-size: 0.85em;
+    }
+    .button.quiz-start-button {
+        width: 100%;
+        padding: 0.9rem 1.8rem;
+        font-size: 1.05rem;
+        letter-spacing: 0.5px;
+    }
+    .button.quiz-start-button::after {
+        margin-left: 10px;
+    }
+
+    .quiz-mode-selection {
+        padding: 1.5rem;
+    }
+    .quiz-mode-selection input[type="radio"] + label {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container h1 {
+        font-size: 1.75rem;
+    }
+    #mcqSetupForm .selection-group {
+        padding: 1.5rem 1.2rem; /* আরও ছোট স্ক্রিনের জন্য প্যাডিং */
+    }
+    .selection-list {
+        gap: 12px;
+    }
+    .selection-list li {
+        width: 100%;
+        text-align: center;
+        justify-content: center; /* আইকন ও টেক্সট মাঝে আনতে */
+        padding: 0.7rem 1rem;
+    }
+    .selection-group label,
+    .selection-group .group-label {
+        font-size: 1.1rem;
+    }
+     .button.quiz-start-button {
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+}
