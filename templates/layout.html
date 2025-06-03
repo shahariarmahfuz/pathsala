@@ -67,11 +67,12 @@
         </div>
         <div class="mobile-nav-content">
             <ul class="mobile-nav-links">
+                <span style="margin-right: 15px; color: var(--text-color); display: inline-flex; align-items: center;">স্বাগতম, {{ g_user.username }}</span>
                 <li><a href="{{ url_for('public.main_homepage') }}"><i class="fas fa-home"></i> হোম</a></li>
                 <li><a href="{{ url_for('public.mcq_home_page') }}"><i class="fas fa-question-circle"></i> MCQ কুইজ</a></li>
                 <li><a href="{{ url_for('public.short_questions_home') }}"><i class="fas fa-file-alt"></i> সংক্ষিপ্ত প্রশ্ন</a></li>
                 <li><a href="{{ url_for('public.creative_questions_home') }}"><i class="fas fa-lightbulb"></i> সৃজনশীল প্রশ্ন</a></li>
-                <li><a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-lock"></i> অ্যাডমিন প্যানেল</a></li>
+                
 
                 {% if g_user %}
                     <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> লগআউট</a></li>
