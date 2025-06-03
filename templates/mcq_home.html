@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block title %}MCQ কুইজ{% endblock %}
+
+{% block page_specific_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mcq_home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>MCQ কুইজ</h1>
+    <p class="back-to-home"><a href="{{ url_for('public.main_homepage') }}"><i class="fas fa-arrow-left"></i> প্রধান হোমপেজে ফিরে যান</a></p>
+    <hr class="themed-hr">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('public.start_quiz') }}" id="mcqSetupForm">
+        <input type="hidden" name="subject_id" id="selected_subject_id_mcq">
+        <input type="hidden" name="chapter_id" id="selected_chapter_id_mcq">
+
+        <div class="selection-group">
+            <label for="subject-list-mcq">বিষয় নির্বাচন করুন:</label>
+            <ul id="subject-list-mcq" class="selection-list">
+                {% if subjects %}
+                    {% for subject in subjects %}
+                    <li data-subject-id="{{ subject.id }}">{{ subject.name }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-item-message list-item-empty">কোনো বিষয় উপলব্ধ নেই।</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div id="chapters-container-mcq" class="selection-group" style="display: none;">
+            <label for="chapter-list-mcq">অধ্যায় নির্বাচন করুন:</label>
+            <ul id="chapter-list-mcq" class="selection-list">
+                </ul>
+        </div>
+
+        <div id="mcq-options-container" class="selection-group" style="display: none;">
+            <div class="quiz-mode-selection selection-group">
+                <label class="group-label">কুইজের ধরণ নির্বাচন করুন:</label>
+                <div class="radio-option">
+                    <input type="radio" id="mode_normal" name="quiz_mode" value="normal" checked>
+                    <label for="mode_normal">সাধারণ (Normal)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="mode_timed" name="quiz_mode" value="timed">
+                    <label for="mode_timed">সময় ভিত্তিক (Timed - প্রতি প্রশ্নে ৩০ সেকেন্ড)</label>
+                </div>
+            </div>
+
+            <label for="num_questions_mcq">কতগুলো MCQ প্রশ্নের উত্তর দিতে চান?</label>
+            <input type="number" name="num_questions" id="num_questions_mcq" min="1" value="5" required>
+
+            <button type="submit" class="button quiz-start-button">MCQ কুইজ শুরু করুন</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectListMcq = document.getElementById('subject-list-mcq');
+    const chaptersContainerMcq = document.getElementById('chapters-container-mcq');
+    const chapterListMcq = document.getElementById('chapter-list-mcq');
+    const mcqOptionsContainer = document.getElementById('mcq-options-container');
+
+    const selectedSubjectIdInputMcq = document.getElementById('selected_subject_id_mcq');
+    const selectedChapterIdInputMcq = document.getElementById('selected_chapter_id_mcq');
+
+    function setActiveListItem(listElement, activeLi) {
+        if(listElement) Array.from(listElement.children).forEach(li => li.classList.remove('active'));
+        if (activeLi && activeLi.dataset.subjectId || activeLi.dataset.chapterId) { // Ensure it's a selectable item
+             activeLi.classList.add('active');
+        }
+    }
+
+    if(subjectListMcq) {
+        subjectListMcq.addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI' && e.target.dataset.subjectId) {
+                const subjectId = e.target.dataset.subjectId;
+                setActiveListItem(subjectListMcq, e.target);
+                selectedSubjectIdInputMcq.value = subjectId;
+
+                selectedChapterIdInputMcq.value = ''; 
+                mcqOptionsContainer.style.display = 'none';
+                chaptersContainerMcq.style.display = 'block';
+                chapterListMcq.innerHTML = '<li class="list-item-message">লোড হচ্ছে...</li>';
+
+                fetch(`/api/get_chapters/${subjectId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        chapterListMcq.innerHTML = '';
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const li = document.createElement('li');
+                                li.dataset.chapterId = chapter.id;
+                                li.textContent = chapter.name;
+                                chapterListMcq.appendChild(li);
+                            });
+                        } else {
+                           chapterListMcq.innerHTML = '<li class="list-item-message list-item-empty">এই বিষয়ে কোনো অধ্যায় নেই।</li>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters for MCQ user:', error);
+                        chapterListMcq.innerHTML = '<li class="list-item-message list-item-error">অধ্যায় লোড করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।</li>';
+                    });
+            }
+        });
+    }
+    if(chapterListMcq){
+        chapterListMcq.addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI' && e.target.dataset.chapterId) {
+                const chapterId = e.target.dataset.chapterId;
+                setActiveListItem(chapterListMcq, e.target);
+                selectedChapterIdInputMcq.value = chapterId;
+                mcqOptionsContainer.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends "layout.html" %}
+{% block title %}সংক্ষিপ্ত প্রশ্নাবলী{% endblock %}
+
+{% block page_specific_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/short_questions_home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container short-questions-container">
+    <h1 class="page-title">সংক্ষিপ্ত প্রশ্নাবলী</h1>
+    <p class="back-to-home-link"><a href="{{ url_for('public.main_homepage') }}"><i class="fas fa-arrow-left"></i> প্রধান হোমপেজে ফিরে যান</a></p>
+    <hr class="themed-hr-sq">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="selection-group card-style">
+        <label>বিষয় নির্বাচন করুন:</label>
+        <ul id="subject-list-sq" class="selection-list">
+            {% if subjects %}
+                {% for subject in subjects %}
+                <li data-subject-id="{{ subject.id }}">{{ subject.name }}</li>
+                {% endfor %}
+            {% else %}
+                 <li class="list-item-message list-item-empty">কোনো বিষয় উপলব্ধ নেই।</li>
+            {% endif %}
+        </ul>
+    </div>
+    <div id="chapters-container-sq" class="selection-group card-style" style="display: none;">
+        <label>অধ্যায় নির্বাচন করুন:</label>
+        <ul id="chapter-list-sq" class="selection-list">
+            {# Chapters loaded by JS #}
+        </ul>
+    </div>
+
+    <div id="short-questions-display-area" style="display: none;">
+        <h3 id="current-chapter-name-sq"></h3>
+        <div id="short-questions-list">
+            {# Short questions loaded by JS #}
+        </div>
+        <div class="pagination-controls">
+            <button id="prev-sq-page" class="pagination-button" disabled><i class="fas fa-chevron-left"></i> পূর্ববর্তী</button>
+            <span id="sq-page-info" class="page-info-display">পৃষ্ঠা - / -</span>
+            <button id="next-sq-page" class="pagination-button" disabled>পরবর্তী <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div id="loading-sq-message" class="loading-indicator-sq" style="display:none;"><i class="fas fa-spinner fa-spin"></i> <p>লোড হচ্ছে...</p></div>
+
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectListSq = document.getElementById('subject-list-sq');
+    const chaptersContainerSq = document.getElementById('chapters-container-sq');
+    const chapterListSq = document.getElementById('chapter-list-sq');
+    const questionsDisplayArea = document.getElementById('short-questions-display-area');
+    const questionsListDiv = document.getElementById('short-questions-list');
+    const currentChapterNameSq = document.getElementById('current-chapter-name-sq');
+    const loadingSqMessage = document.getElementById('loading-sq-message');
+
+    const prevSqPageBtn = document.getElementById('prev-sq-page');
+    const nextSqPageBtn = document.getElementById('next-sq-page');
+    const sqPageInfo = document.getElementById('sq-page-info');
+
+    let currentSqChapterId = null;
+    let currentSqChapterName = '';
+    let currentSqPage = 1;
+    let totalSqPages = 1;
+
+    function setActiveListItem(listElement, activeLi) {
+        if(listElement) { 
+            Array.from(listElement.children).forEach(li => {
+                if (!li.classList.contains('list-item-message')) {
+                    li.classList.remove('active');
+                }
+            });
+        }
+        if (activeLi && (activeLi.dataset.subjectId || activeLi.dataset.chapterId)) {
+             activeLi.classList.add('active');
+        }
+    }
+
+    function displayMessageInList(listElement, message, type = 'message') {
+        let className = 'list-item-message';
+        if (type === 'empty') className += ' list-item-empty';
+        if (type === 'error') className += ' list-item-error';
+        listElement.innerHTML = `<li class="${className}">${message}</li>`;
+    }
+
+    function displayMessageInContent(contentDiv, message, type = 'info') {
+        let iconClass = 'fas fa-info-circle';
+        if (type === 'empty') iconClass = 'fas fa-folder-open';
+        if (type === 'error') iconClass = 'fas fa-exclamation-triangle';
+
+        contentDiv.innerHTML = `<p class="content-message message-${type}"><i class="${iconClass}"></i> ${message}</p>`;
+    }
+
+    if(subjectListSq) {
+        subjectListSq.addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI' && e.target.dataset.subjectId) {
+                const subjectId = e.target.dataset.subjectId;
+                setActiveListItem(subjectListSq, e.target);
+                currentSqChapterId = null; 
+                questionsDisplayArea.style.display = 'none';
+                chaptersContainerSq.style.display = 'block';
+                displayMessageInList(chapterListSq, 'লোড হচ্ছে...');
+                fetch(`/api/get_chapters/${subjectId}`)
+                    .then(response => {if(!response.ok) throw new Error('Network error while fetching chapters.'); return response.json();})
+                    .then(data => {
+                        chapterListSq.innerHTML = ''; 
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const li = document.createElement('li');
+                                li.dataset.chapterId = chapter.id;
+                                li.textContent = chapter.name;
+                                chapterListSq.appendChild(li);
+                            });
+                        } else {
+                            displayMessageInList(chapterListSq, 'এই বিষয়ে কোনো অধ্যায় নেই।', 'empty');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters for SQ:', error);
+                        displayMessageInList(chapterListSq, 'অধ্যায় লোড করতে সমস্যা হয়েছে।', 'error');
+                    });
+            }
+        });
+    }
+
+    if(chapterListSq) {
+        chapterListSq.addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI' && e.target.dataset.chapterId) {
+                currentSqChapterId = e.target.dataset.chapterId;
+                currentSqChapterName = e.target.textContent;
+                setActiveListItem(chapterListSq, e.target);
+                currentChapterNameSq.textContent = `${currentSqChapterName}`;
+                questionsDisplayArea.style.display = 'block';
+                currentSqPage = 1; 
+                fetchAndDisplayShortQuestions(currentSqChapterId, currentSqPage);
+            }
+        });
+    }
+
+    function formatTextWithNewLines(text) {
+        if (typeof text !== 'string') return '';
+        return text.replace(/\n/g, '<br>');
+    }
+
+    function fetchAndDisplayShortQuestions(chapterId, page) {
+        if (!chapterId) return;
+        loadingSqMessage.style.display = 'flex';
+        questionsListDiv.innerHTML = ''; 
+        prevSqPageBtn.disabled = true;
+        nextSqPageBtn.disabled = true;
+        sqPageInfo.textContent = `পৃষ্ঠা - / -`;
+
+        fetch(`/api/short_questions/${chapterId}?page=${page}`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.error || `প্রশ্ন আনতে সমস্যা হয়েছে (স্ট্যাটাস: ${response.status})।`);
+                    }).catch(() => { 
+                        throw new Error(`প্রশ্ন আনতে সমস্যা হয়েছে (স্ট্যাটাস: ${response.status})।`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadingSqMessage.style.display = 'none';
+                questionsListDiv.innerHTML = ''; 
+
+                currentSqPage = data.current_page;
+                totalSqPages = data.total_pages;
+
+                if (data.short_questions && data.short_questions.length > 0) {
+                    data.short_questions.forEach(sq => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.classList.add('short-question-item');
+
+                        // *** নতুনঃ হেডার কন্টেইনার ***
+                        const headerDiv = document.createElement('div');
+                        headerDiv.classList.add('sq-item-header');
+
+                        const questionH3 = document.createElement('h3');
+                        questionH3.classList.add('question-title');
+                        questionH3.innerHTML = `<span class="q-label">প্রশ্ন:</span><span class="q-text">${formatTextWithNewLines(sq.question_text)}</span>`;
+                        headerDiv.appendChild(questionH3); // হেডার ডিভে প্রশ্ন যোগ
+
+                        if (sq.is_seen_by_user) {
+                            const seenBadge = document.createElement('span');
+                            seenBadge.classList.add('seen-badge-sq');
+                            seenBadge.innerHTML = '<i class="fas fa-eye"></i> পঠিত';
+                            headerDiv.appendChild(seenBadge); // হেডার ডিভে ব্যাজ যোগ
+                        }
+                        itemDiv.appendChild(headerDiv); // আইটেম ডিভে সম্পূর্ণ হেডার যোগ
+
+                        const answerP = document.createElement('p');
+                        answerP.classList.add('answer-text');
+                        answerP.innerHTML = `<span class="a-label">উত্তর:</span><span class="a-content">${formatTextWithNewLines(sq.answer_text)}</span>`;
+                        itemDiv.appendChild(answerP);
+
+                        questionsListDiv.appendChild(itemDiv);
+                    });
+                } else {
+                    // ... (মেসেজ দেখানোর আগের কোড অপরিবর্তিত) ...
+                     if (page === 1 && data.total_items === 0) {
+                        displayMessageInContent(questionsListDiv, 'এই অধ্যায়ে কোনো সংক্ষিপ্ত প্রশ্ন পাওয়া যায়নি।', 'empty');
+                    } else if (page > 1 || (data.total_items > 0 && data.short_questions.length === 0) ) {
+                        displayMessageInContent(questionsListDiv, 'এই পৃষ্ঠায় আর কোনো প্রশ্ন নেই।', 'info');
+                    } else {
+                        displayMessageInContent(questionsListDiv, 'কোনো প্রশ্ন পাওয়া যায়নি।', 'empty');
+                    }
+                }
+
+                // ... (পেজিনেশন এবং অন্যান্য লজিক অপরিবর্তিত) ...
+                 if (totalSqPages > 0) {
+                    sqPageInfo.textContent = `পৃষ্ঠা ${currentSqPage} / ${totalSqPages}`;
+                } else {
+                    sqPageInfo.textContent = `পৃষ্ঠা ০ / ০`;
+                }
+                prevSqPageBtn.disabled = !data.has_prev;
+                nextSqPageBtn.disabled = !data.has_next;
+
+                if (data.short_questions.length === 0 && page > 1 && data.total_items > 0) {
+                    fetchAndDisplayShortQuestions(chapterId, totalSqPages);
+                } else if (data.total_items === 0) {
+                    prevSqPageBtn.disabled = true;
+                    nextSqPageBtn.disabled = true;
+                }
+            })
+            .catch(error => {
+                loadingSqMessage.style.display = 'none';
+                console.error('Error fetching short questions:', error);
+                displayMessageInContent(questionsListDiv, error.message, 'error');
+                prevSqPageBtn.disabled = true;
+                nextSqPageBtn.disabled = true;
+                sqPageInfo.textContent = `পৃষ্ঠা - / -`;
+            });
+    }
+
+    if(prevSqPageBtn) {
+        prevSqPageBtn.addEventListener('click', function() {
+            if (!this.disabled && currentSqPage > 1) { 
+                fetchAndDisplayShortQuestions(currentSqChapterId, currentSqPage - 1);
+            }
+        });
+    }
+    if(nextSqPageBtn) {
+        nextSqPageBtn.addEventListener('click', function() {
+            if (!this.disabled && currentSqPage < totalSqPages) { 
+                fetchAndDisplayShortQuestions(currentSqChapterId, currentSqPage + 1);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন প্যানেল - প্রশ্ন যোগ করুন</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>অ্যাডমিন প্যানেল - নতুন নৈবিত্তিক প্রশ্ন যোগ করুন</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin') }}">
+            <div>
+                <label for="question_text">প্রশ্ন:</label><br>
+                <textarea name="question_text" id="question_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <label for="option_a">অপশন ক:</label>
+                <input type="text" name="option_a" id="option_a" required>
+            </div>
+            <div>
+                <label for="option_b">অপশন খ:</label>
+                <input type="text" name="option_b" id="option_b" required>
+            </div>
+            <div>
+                <label for="option_c">অপশন গ:</label>
+                <input type="text" name="option_c" id="option_c" required>
+            </div>
+            <div>
+                <label for="option_d">অপশন ঘ:</label>
+                <input type="text" name="option_d" id="option_d" required>
+            </div>
+            <div>
+                <label for="correct_option">সঠিক অপশন:</label>
+                <select name="correct_option" id="correct_option" required>
+                    <option value="a">ক</option>
+                    <option value="b">খ</option>
+                    <option value="c">গ</option>
+                    <option value="d">ঘ</option>
+                </select>
+            </div>
+            <button type="submit">প্রশ্ন যোগ করুন</button>
+        </form>
+
+        <h2>বিদ্যমান প্রশ্নাবলী (সর্বশেষ প্রথমে)</h2>
+        <div class="question-list">
+            {% if all_questions %}
+                {% for q in all_questions %}
+                <div class="question-item">
+                    <p><strong>প্রশ্ন {{ q.id }}:</strong> {{ q.question_text }}</p>
+                    <ul>
+                        <li>ক) {{ q.option_a }}</li>
+                        <li>খ) {{ q.option_b }}</li>
+                        <li>গ) {{ q.option_c }}</li>
+                        <li>ঘ) {{ q.option_d }}</li>
+                    </ul>
+                    <p><strong>সঠিক উত্তর:</strong> অপশন {{ q.correct_option.upper() }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p>এখনও কোনো প্রশ্ন যোগ করা হয়নি।</p>
+            {% endif %}
+        </div>
+         <p><a href="{{ url_for('index') }}">হোম পেজে যান</a></p>
+    </div>
+</body>
+</html>

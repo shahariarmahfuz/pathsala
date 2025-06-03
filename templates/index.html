@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block title %}এডুকেশনাল প্ল্যাটফর্ম - হোম{% endblock %}
+
+{% block page_specific_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container homepage-container">
+    <h1 class="page-main-title">আমাদের এডুকেশনাল প্ল্যাটফর্মে স্বাগতম!</h1>
+    <p class="page-subtitle">নিচের অপশনগুলো থেকে আপনার পছন্দ অনুযায়ী সেকশনে যান এবং আপনার জ্ঞান বৃদ্ধি করুন।</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashed-messages-container"> {# Optional wrapper for better control #}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="features-container">
+        <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-puzzle-piece"></i></div> {# আইকন যুক্ত করা হলো #}
+            <h2>MCQ কুইজ</h2>
+            <p>বিভিন্ন বিষয় ও অধ্যায়ের উপর MCQ পরীক্ষা দিন এবং আপনার জ্ঞান যাচাই করুন। প্রতিটি সঠিক উত্তরের জন্য পয়েন্ট অর্জন করুন।</p>
+            <a href="{{ url_for('public.mcq_home_page') }}" class="feature-button">MCQ কুইজে যান <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-file-alt"></i></div> {# আইকন যুক্ত করা হলো #}
+            <h2>সংক্ষিপ্ত প্রশ্নাবলী</h2>
+            <p>বিষয় ও অধ্যায়ভিত্তিক গুরুত্বপূর্ণ সংক্ষিপ্ত প্রশ্ন ও উত্তর পড়ুন এবং পরীক্ষার প্রস্তুতিতে এগিয়ে থাকুন।</p>
+            <a href="{{ url_for('public.short_questions_home') }}" class="feature-button">সংক্ষিপ্ত প্রশ্ন পড়ুন <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon"><i class="fas fa-lightbulb"></i></div> {# আইকন যুক্ত করা হলো #}
+            <h2>সৃজনশীল প্রশ্নাবলী</h2>
+            <p>উদ্দীপকসহ সৃজনশীল প্রশ্ন ও তাদের বিস্তারিত সমাধান অনুশীলন করুন। পরীক্ষার জন্য নিজেকে আরও ভালোভাবে প্রস্তুত করুন।</p>
+            <a href="{{ url_for('public.creative_questions_home') }}" class="feature-button">সৃজনশীল প্রশ্ন পড়ুন <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+{% endblock %}

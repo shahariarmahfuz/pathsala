@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+{% block title %}কুইজ চলছে - প্রশ্ন {{ question_number }}{% endblock %}
+
+{% block page_specific_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container quiz-container">
+    <div class="question-header">
+        <h1>প্রশ্ন {{ question_number }} / {{ total_questions }}</h1>
+        {% if g_user and question.is_attempted_by_user %}
+            <span class="attempted-badge">পূর্বে করেছেন</span>
+        {% endif %}
+    </div>
+
+    <p class="back-to-link"><a href="{{ url_for('public.mcq_home_page') }}"><i class="fas fa-arrow-left"></i> MCQ হোমপেজে ফিরে যান</a></p>
+    <hr class="themed-hr-quiz">
+
+    {% if quiz_mode == 'timed' and time_limit > 0 %}
+        <div id="timerDisplay" class="timer-display">
+            <i class="fas fa-stopwatch"></i> সময় বাকি: <span id="time-left-value">{{ time_limit }}</span> সেকেন্ড
+        </div>
+        <div class="timer-progress-container">
+            <div id="timerProgressBar" class="timer-progress-bar"></div>
+        </div>
+    {% endif %}
+
+    <div class="score-display">
+        আপনার বর্তমান স্কোর: <span id="current-score" class="score-value">{{ current_score }}</span> / <span id="total-quiz-questions">{{ total_questions }}</span>
+    </div>
+
+    <div class="quiz-question-card" 
+         data-question-id="{{ question.id }}"
+         data-correct-option="{{ question.correct_option }}"
+         data-answered="{{ 'true' if answered else 'false' }}"
+         data-user-choice="{{ previous_submission.user_choice_key if previous_submission and previous_submission.user_choice_key is not none else '' }}">
+
+        <p class="question-text">{{ question.question_text | safe }}</p>
+
+        <div class="options-container">
+            <button class="option-button" data-option="a"><span>ক)</span> {{ question.option_a | safe }}</button>
+            <button class="option-button" data-option="b"><span>খ)</span> {{ question.option_b | safe }}</button>
+            <button class="option-button" data-option="c"><span>গ)</span> {{ question.option_c | safe }}</button>
+            <button class="option-button" data-option="d"><span>ঘ)</span> {{ question.option_d | safe }}</button>
+        </div>
+        <div class="feedback-message" style="display: none;"></div> {# টেক্সট সরানো হয়েছে, তাই এটি আর দেখানো হবে না #}
+    </div>
+
+    <form id="next-question-form" method="POST" action="{{ url_for('public.next_question') }}" style="display: none;">
+        {% if question_number < total_questions %}
+            <button type="submit" class="quiz-nav-button button-next">পরবর্তী প্রশ্ন <i class="fas fa-arrow-right"></i></button>
+        {% else %}
+            <button type="submit" class="quiz-nav-button button-finish">কুইজ শেষ করুন <i class="fas fa-check-circle"></i></button>
+        {% endif %}
+    </form>
+    <p id="loading-text" class="loading-indicator" style="display:none;"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const optionButtons = document.querySelectorAll('.option-button');
+        const feedbackDiv = document.querySelector('.feedback-message'); // যদিও টেক্সট দেখাবো না, ক্লাস থাকতে পারে
+        const questionCard = document.querySelector('.quiz-question-card');
+        const nextQuestionForm = document.getElementById('next-question-form');
+        const loadingText = document.getElementById('loading-text');
+        const scoreSpan = document.getElementById('current-score');
+        const timeLeftValueSpan = document.getElementById('time-left-value');
+        const timerDisplayDiv = document.getElementById('timerDisplay');
+
+        const progressBar = document.getElementById('timerProgressBar');
+        const progressContainer = document.querySelector('.timer-progress-container');
+        let totalTimeForProgressBar; 
+
+        const questionId = parseInt(questionCard.dataset.questionId);
+        const quizMode = "{{ quiz_mode }}";
+        let timeLeft = parseInt("{{ time_limit or 0 }}");
+        let timerInterval;
+
+        const rootStyles = getComputedStyle(document.documentElement);
+        const successColor = rootStyles.getPropertyValue('--success-color').trim() || '#28a745'; // Using a strong default
+        const warningColor = rootStyles.getPropertyValue('--warning-color').trim() || '#ffc107'; // Using a strong default
+        const dangerColor = rootStyles.getPropertyValue('--danger-color').trim() || '#dc3545'; // Using a strong default
+        // const primaryColor = rootStyles.getPropertyValue('--primary-color').trim() || '#4361ee';
+
+        function submitAnswerToServer(selectedOptionKey) {
+            optionButtons.forEach(btn => btn.disabled = true);
+            if (loadingText) loadingText.style.display = 'flex';
+            if (timerInterval) clearInterval(timerInterval);
+
+            fetch("{{ url_for('public.submit_answer') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    answer: selectedOptionKey
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (loadingText) loadingText.style.display = 'none';
+
+                // ফিডব্যাক টেক্সট দেখানো হবে না, তাই feedbackDiv.innerHTML সেট করার প্রয়োজন নেই
+                // feedbackDiv.innerHTML = ''; // নিশ্চিত করুন এটি খালি
+                // feedbackDiv.style.display = 'none'; // অথবা হাইড করে দিন
+
+                if (data.error) {
+                    // যদি কোনো সার্ভার এরর মেসেজ দেখাতে চান, তাহলে দেখাতে পারেন
+                    // console.error(`Error: ${data.error}`); 
+                    // feedbackDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ত্রুটি: ${data.error}`;
+                    // feedbackDiv.className = 'feedback-message feedback-error show';
+                    // feedbackDiv.style.display = 'flex'; // শুধুমাত্র এররের জন্য দেখাতে পারেন
+                    return;
+                }
+
+                const correctOptionKeyFromServer = data.correct_option_key;
+
+                optionButtons.forEach(btn => {
+                    const option = btn.dataset.option;
+                    btn.classList.remove('correct', 'incorrect', 'user-selected');
+
+                    if (option === selectedOptionKey && selectedOptionKey !== 'TIMEOUT') {
+                        btn.classList.add('user-selected'); // এটি ভুল হলেও ব্যবহারকারীর সিলেকশন দেখাবে
+                        btn.classList.add(data.correct ? 'correct' : 'incorrect');
+                    }
+                    // সঠিক উত্তরটি সবসময় হাইলাইট করুন
+                    if (option === correctOptionKeyFromServer) {
+                        if (!btn.classList.contains('correct')) btn.classList.add('correct');
+                    }
+                });
+
+                // ফিডব্যাক টেক্সট সরানো হয়েছে
+                // if (selectedOptionKey === 'TIMEOUT') { ... } 
+                // else if (data.correct) { ... } 
+                // else { ... }
+                // feedbackDiv.style.display = 'flex'; // এটিও আর প্রয়োজন নেই যদি কোনো টেক্সট না থাকে
+                // setTimeout(() => feedbackDiv.classList.add('show'), 10);
+
+                if (scoreSpan && data.current_score !== undefined) {
+                    scoreSpan.textContent = data.current_score;
+                }
+                questionCard.dataset.answered = 'true';
+
+                if (nextQuestionForm) {
+                    setTimeout(() => {
+                        nextQuestionForm.style.display = 'block';
+                        if (selectedOptionKey === 'TIMEOUT') {
+                           setTimeout(() => nextQuestionForm.querySelector('button').click(), 1000);
+                        }
+                    }, selectedOptionKey === 'TIMEOUT' ? 500 : 1000); // ফিডব্যাক টেক্সট না থাকলে ডিলে কমানো যেতে পারে
+                }
+            })
+            .catch(error => {
+                if (loadingText) loadingText.style.display = 'none';
+                // feedbackDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> একটি নেটওয়ার্ক ত্রুটি ঘটেছে।';
+                // feedbackDiv.className = 'feedback-message feedback-error show';
+                // feedbackDiv.style.display = 'flex';
+                console.error('Error submitting answer:', error);
+            });
+        }
+
+        function startTimer() {
+            if (quizMode === 'timed' && timeLeft > 0 && timerDisplayDiv && timeLeftValueSpan) {
+                timerDisplayDiv.style.display = 'flex';
+                if (progressContainer) progressContainer.style.display = 'block';
+
+                if (progressBar) {
+                    totalTimeForProgressBar = timeLeft; 
+                    progressBar.style.width = '100%'; 
+                    // ProgressBar এর প্রাথমিক রঙ JS থেকে সেট করা হবে, CSS এর ট্রানজিশন কাজ করবে
+                    const initialPercentage = (timeLeft / totalTimeForProgressBar) * 100;
+                    if (initialPercentage < 30) {
+                        progressBar.style.backgroundColor = dangerColor;
+                    } else if (initialPercentage < 60) {
+                        progressBar.style.backgroundColor = warningColor;
+                    } else {
+                        progressBar.style.backgroundColor = successColor; 
+                    }
+                }
+
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeftValueSpan) timeLeftValueSpan.textContent = timeLeft; // null check
+
+                    if (progressBar && totalTimeForProgressBar > 0) {
+                        const percentageRemaining = (timeLeft / totalTimeForProgressBar) * 100;
+                        progressBar.style.width = percentageRemaining + '%';
+
+                        if (percentageRemaining < 30) {
+                            progressBar.style.backgroundColor = dangerColor;
+                        } else if (percentageRemaining < 60) {
+                            progressBar.style.backgroundColor = warningColor;
+                        } else {
+                           progressBar.style.backgroundColor = successColor;
+                        }
+                    }
+
+                    if (timeLeft <= 10 && timeLeft > 0) {
+                        timerDisplayDiv.classList.add('urgent');
+                    }
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        if (timeLeftValueSpan) timeLeftValueSpan.textContent = 'শেষ';
+                        timerDisplayDiv.classList.remove('urgent');
+                        timerDisplayDiv.classList.add('ended');
+
+                        if (progressBar) {
+                            progressBar.style.width = '0%';
+                            progressBar.style.backgroundColor = dangerColor;
+                        }
+                        submitAnswerToServer('TIMEOUT');
+                    }
+                }, 1000);
+            } else {
+                if (timerDisplayDiv) timerDisplayDiv.style.display = 'none';
+                if (progressContainer) progressContainer.style.display = 'none';
+            }
+        }
+
+        optionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.disabled || questionCard.dataset.answered === 'true') return;
+                const selectedOptionKey = this.dataset.option;
+                submitAnswerToServer(selectedOptionKey);
+            });
+        });
+
+        const isQuestionAlreadyAnswered = questionCard.dataset.answered === 'true';
+        if (!isQuestionAlreadyAnswered) {
+            startTimer();
+        } else {
+            const userChoice = questionCard.dataset.userChoice;
+            const correctOpt = questionCard.dataset.correctOption;
+            optionButtons.forEach(btn => {
+                btn.disabled = true;
+                const option = btn.dataset.option;
+                if (option === userChoice) {
+                    btn.classList.add('user-selected');
+                    if(userChoice === correctOpt){ btn.classList.add('correct'); } 
+                    else { btn.classList.add('incorrect'); }
+                }
+                if (option === correctOpt) {
+                     if(!btn.classList.contains('correct')) btn.classList.add('correct');
+                }
+            });
+            if (nextQuestionForm) nextQuestionForm.style.display = 'block';
+            if (timerDisplayDiv) timerDisplayDiv.style.display = 'none';
+            if (progressContainer) progressContainer.style.display = 'none';
+            // feedbackDiv.style.display = 'none'; // যেহেতু টেক্সট নেই, তাই এটিও হাইড
+        }
+    });
+    </script>
+{% endblock %}

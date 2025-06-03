@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}এডুকেশনাল প্ল্যাটফর্ম | প্রিমিয়াম শিক্ষা{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+    {% block page_specific_css %}{% endblock %}
+    {% block head_extra %}{% endblock %}
+
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png">
+</head>
+<body>
+    <div class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-icon">
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a class="nav-brand" href="{{ url_for('public.main_homepage') }}">
+                <span>এডুপ্ল্যাটফর্ম</span>
+            </a>
+
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('public.main_homepage') }}" class="nav-link"><i class="fas fa-home"></i> হোম</a></li>
+                    <li><a href="{{ url_for('public.mcq_home_page') }}" class="nav-link"><i class="fas fa-question-circle"></i> MCQ কুইজ</a></li>
+                    <li><a href="{{ url_for('public.short_questions_home') }}" class="nav-link"><i class="fas fa-file-alt"></i> সংক্ষিপ্ত প্রশ্ন</a></li>
+                    <li><a href="{{ url_for('public.creative_questions_home') }}" class="nav-link"><i class="fas fa-lightbulb"></i> সৃজনশীল প্রশ্ন</a></li>
+                </ul>
+
+                <div class="user-section">
+                    {% if g_user %}
+                        <span style="margin-right: 15px; color: var(--text-color); display: inline-flex; align-items: center;">স্বাগতম, {{ g_user.username }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> লগইন</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> নিবন্ধন</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button class="mobile-menu-button" aria-label="মেনু খুলুন">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <span class="mobile-nav-title">এডুপ্ল্যাটফর্ম</span>
+            <button class="mobile-close-button" aria-label="মেনু বন্ধ করুন">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-content">
+            <ul class="mobile-nav-links">
+                <li><a href="{{ url_for('public.main_homepage') }}"><i class="fas fa-home"></i> হোম</a></li>
+                <li><a href="{{ url_for('public.mcq_home_page') }}"><i class="fas fa-question-circle"></i> MCQ কুইজ</a></li>
+                <li><a href="{{ url_for('public.short_questions_home') }}"><i class="fas fa-file-alt"></i> সংক্ষিপ্ত প্রশ্ন</a></li>
+                <li><a href="{{ url_for('public.creative_questions_home') }}"><i class="fas fa-lightbulb"></i> সৃজনশীল প্রশ্ন</a></li>
+                <li><a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-lock"></i> অ্যাডমিন প্যানেল</a></li>
+
+                {% if g_user %}
+                    <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> লগআউট</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> লগইন</a></li>
+                    <li><a href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus"></i> নিবন্ধন</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="premium-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>এডুপ্ল্যাটফর্ম</h3>
+                    <p>বাংলাদেশের সেরা শিক্ষামূলক প্ল্যাটফর্ম যেখানে আপনি পাবেন সকল স্তরের জন্য মানসম্মত শিক্ষা উপকরণ।</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h3>লিংক</h3>
+                    <ul>
+                        <li><a href="{{ url_for('public.main_homepage') }}">হোম</a></li>
+                        <li><a href="{{ url_for('public.mcq_home_page') }}">MCQ কুইজ</a></li>
+                        <li><a href="{{ url_for('public.short_questions_home') }}">সংক্ষিপ্ত প্রশ্ন</a></li>
+                        <li><a href="{{ url_for('public.creative_questions_home') }}">সৃজনশীল প্রশ্ন</a></li>
+                        <li><a href="#">আমাদের সম্পর্কে</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>সাহায্য</h3>
+                    <ul>
+                        <li><a href="#">সচরাচর জিজ্ঞাসা</a></li>
+                        <li><a href="#">যোগাযোগ</a></li>
+                        <li><a href="#">গোপনীয়তা নীতি</a></li>
+                        <li><a href="#">সেবার শর্তাবলী</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>নিউজলেটার</h3>
+                    <p>আমাদের নিউজলেটার সাবস্ক্রাইব করুন এবং আপডেট পেতে থাকুন</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="আপনার ইমেইল ঠিকানা">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; ২০২৫ এডুকেশনাল প্ল্যাটফর্ম (বাংলাদেশ)। সর্বস্বত্ব সংরক্ষিত।</p>
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+        // Preloader
+        $(window).on('load', function() {
+            $('.preloader').fadeOut('slow');
+        });
+
+        // Mobile Menu
+        $('.mobile-menu-button').click(function() {
+            $('.mobile-nav').addClass('active');
+            $('.mobile-nav-overlay').addClass('active'); // FadeIn এর পরিবর্তে AddClass ব্যবহার ভালো
+            $('body').css('overflow', 'hidden');
+        });
+
+        $('.mobile-close-button, .mobile-nav-overlay').click(function() {
+            $('.mobile-nav').removeClass('active');
+            $('.mobile-nav-overlay').removeClass('active'); // FadeOut এর পরিবর্তে RemoveClass
+            $('body').css('overflow', 'auto');
+        });
+
+        // Back to Top Button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $('.back-to-top').addClass('active');
+            } else {
+                $('.back-to-top').removeClass('active');
+            }
+        });
+
+        $('.back-to-top').click(function() {
+            $('html, body').animate({scrollTop: 0}, 500);
+            return false;
+        });
+    </script>
+
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>

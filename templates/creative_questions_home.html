@@ -1,0 +1,273 @@
+       {% extends "layout.html" %}
+       {% block title %}সৃজনশীল প্রশ্নাবলী{% endblock %}
+
+       {% block page_specific_css %}
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/creative_questions_home.css') }}">
+       {% endblock %}
+
+       {% block content %}
+       <div class="container creative-questions-container">
+           <h1 class="page-title">সৃজনশীল প্রশ্নাবলী</h1>
+           <p class="back-to-home-link"><a href="{{ url_for('public.main_homepage') }}"><i class="fas fa-arrow-left"></i> প্রধান হোমপেজে ফিরে যান</a></p>
+           <hr class="themed-hr-cq">
+
+           {% with messages = get_flashed_messages(with_categories=true) %}
+               {% if messages %}
+                   {% for category, message in messages %}
+                       {# Alert styling will be handled by creative_questions_home.css or layout.css if general #}
+                       <div class="alert alert-{{ category }}">{{ message }}</div>
+                   {% endfor %}
+               {% endif %}
+           {% endwith %}
+
+           <div class="selection-group card-style">
+               <label>বিষয় নির্বাচন করুন:</label>
+               <ul id="subject-list-cq" class="selection-list">
+                   {% if subjects %}
+                       {% for subject in subjects %}
+                       <li data-subject-id="{{ subject.id }}">{{ subject.name }}</li>
+                       {% endfor %}
+                   {% else %}
+                        <li class="list-item-message list-item-empty">কোনো বিষয় উপলব্ধ নেই।</li>
+                   {% endif %}
+               </ul>
+           </div>
+           <div id="chapters-container-cq" class="selection-group card-style" style="display: none;">
+               <label>অধ্যায় নির্বাচন করুন:</label>
+               <ul id="chapter-list-cq" class="selection-list">
+                   {# Chapters loaded by JS #}
+               </ul>
+           </div>
+
+           <div id="creative-question-display-area" style="display: none;">
+               <h3 id="current-chapter-name-cq"></h3>
+               <div id="creative-question-content">
+                   {# Creative questions loaded by JS #}
+               </div>
+               <div class="pagination-controls">
+                   <button id="prev-cq-page" class="pagination-button" disabled><i class="fas fa-chevron-left"></i> পূর্ববর্তী</button>
+                   <span id="cq-page-info" class="page-info-display">প্রশ্ন - / -</span>
+                   <button id="next-cq-page" class="pagination-button" disabled>পরবর্তী <i class="fas fa-chevron-right"></i></button>
+               </div>
+           </div>
+           <div id="loading-cq-message" class="loading-indicator-cq" style="display:none;"><i class="fas fa-spinner fa-spin"></i> <p>লোড হচ্ছে...</p></div>
+       </div>
+       {% endblock %}
+
+       {% block scripts_extra %}
+       <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           const subjectListCq = document.getElementById('subject-list-cq');
+           const chaptersContainerCq = document.getElementById('chapters-container-cq');
+           const chapterListCq = document.getElementById('chapter-list-cq');
+           const questionDisplayArea = document.getElementById('creative-question-display-area');
+           const questionContentDiv = document.getElementById('creative-question-content');
+           const currentChapterNameCq = document.getElementById('current-chapter-name-cq');
+           const loadingCqMessage = document.getElementById('loading-cq-message');
+
+           const prevCqPageBtn = document.getElementById('prev-cq-page');
+           const nextCqPageBtn = document.getElementById('next-cq-page');
+           const cqPageInfo = document.getElementById('cq-page-info');
+
+           let currentCqChapterId = null;
+           let currentCqChapterName = '';
+           let currentCqPage = 1;
+           let totalCqPages = 1;
+
+           function setActiveListItem(listElement, activeLi) {
+               if(listElement) {
+                   Array.from(listElement.children).forEach(li => {
+                       if (!li.classList.contains('list-item-message')) { // শুধুমাত্র ডেটা আইটেম থেকে 'active' ক্লাস সরাবে
+                           li.classList.remove('active');
+                       }
+                   });
+               }
+               if (activeLi && (activeLi.dataset.subjectId || activeLi.dataset.chapterId)) { // নিশ্চিত করে এটি ডেটা আইটেম
+                    activeLi.classList.add('active');
+               }
+           }
+
+           function displayMessageInList(listElement, message, type = 'message') {
+               let className = 'list-item-message';
+               if (type === 'empty') className += ' list-item-empty';
+               if (type === 'error') className += ' list-item-error';
+               listElement.innerHTML = `<li class="${className}">${message}</li>`;
+           }
+
+
+           if (subjectListCq) {
+               subjectListCq.addEventListener('click', function(e) {
+                   if (e.target.tagName === 'LI' && e.target.dataset.subjectId) {
+                       const subjectId = e.target.dataset.subjectId;
+                       setActiveListItem(subjectListCq, e.target);
+                       currentCqChapterId = null;
+                       questionDisplayArea.style.display = 'none';
+                       chaptersContainerCq.style.display = 'block';
+                       displayMessageInList(chapterListCq, 'লোড হচ্ছে...');
+
+                       fetch(`/api/get_chapters/${subjectId}`)
+                           .then(response => { if(!response.ok) throw new Error('Network error while fetching chapters.'); return response.json();})
+                           .then(data => {
+                               chapterListCq.innerHTML = ''; // Clear previous items before adding new ones
+                               if (data.chapters && data.chapters.length > 0) {
+                                   data.chapters.forEach(chapter => {
+                                       const li = document.createElement('li');
+                                       li.dataset.chapterId = chapter.id;
+                                       li.textContent = chapter.name;
+                                       chapterListCq.appendChild(li);
+                                   });
+                               } else {
+                                   displayMessageInList(chapterListCq, 'এই বিষয়ে কোনো অধ্যায় নেই।', 'empty');
+                               }
+                           })
+                           .catch(error => {
+                               console.error('Error fetching chapters for CQ:', error);
+                               displayMessageInList(chapterListCq, 'অধ্যায় লোড করতে সমস্যা হয়েছে।', 'error');
+                           });
+                   }
+               });
+           }
+
+           if (chapterListCq) {
+               chapterListCq.addEventListener('click', function(e) {
+                   if (e.target.tagName === 'LI' && e.target.dataset.chapterId) {
+                       currentCqChapterId = e.target.dataset.chapterId;
+                       currentCqChapterName = e.target.textContent;
+                       setActiveListItem(chapterListCq, e.target);
+
+                       currentChapterNameCq.textContent = `${currentCqChapterName}`; // শুধু অধ্যায়ের নাম
+                       questionDisplayArea.style.display = 'block';
+                       currentCqPage = 1; 
+                       fetchAndDisplayCreativeQuestion(currentCqChapterId, currentCqPage);
+                   }
+               });
+           }
+
+           function formatTextWithNewLines(text) {
+               if (typeof text !== 'string') return '';
+               return text.replace(/\n/g, '<br>');
+           }
+
+           function fetchAndDisplayCreativeQuestion(chapterId, page) {
+               if (!chapterId) return;
+               loadingCqMessage.style.display = 'flex'; // Use flex for centered loading
+               questionContentDiv.innerHTML = '';
+               prevCqPageBtn.disabled = true;
+               nextCqPageBtn.disabled = true;
+               cqPageInfo.textContent = `প্রশ্ন - / -`;
+
+               fetch(`/api/creative_question/${chapterId}?page=${page}`)
+                   .then(response => {
+                       if (!response.ok) {
+                           return response.json().then(errData => {
+                               throw new Error(errData.error || `প্রশ্ন আনতে সমস্যা হয়েছে (স্ট্যাটাস: ${response.status})।`);
+                           }).catch(() => { 
+                               throw new Error(`প্রশ্ন আনতে সমস্যা হয়েছে (স্ট্যাটাস: ${response.status})।`);
+                           });
+                       }
+                       return response.json();
+                   })
+                   .then(data => {
+                       loadingCqMessage.style.display = 'none';
+                       questionContentDiv.innerHTML = ''; 
+
+                       const cq = data.creative_question;
+                       currentCqPage = data.current_page; 
+                       totalCqPages = data.total_pages;
+
+                       if (cq) {
+                           const itemDiv = document.createElement('div');
+                           itemDiv.classList.add('creative-question-view');
+
+                           if (cq.is_seen_by_user) { // Assuming this field comes from backend
+                               const seenBadge = document.createElement('span');
+                               seenBadge.classList.add('seen-badge-cq');
+                               seenBadge.innerHTML = '<i class="fas fa-eye"></i> পঠিত';
+                               itemDiv.appendChild(seenBadge);
+                           }
+
+                           const uddipakDiv = document.createElement('div');
+                           uddipakDiv.classList.add('uddipak-section');
+                           uddipakDiv.innerHTML = `<h4 class="uddipak-title">উদ্দীপক</h4><div class="uddipak-text">${formatTextWithNewLines(cq.uddipak_text)}</div>`;
+                           itemDiv.appendChild(uddipakDiv);
+
+                           const subQuestionsUl = document.createElement('ul');
+                           subQuestionsUl.classList.add('sub-questions-list');
+                           subQuestionsUl.innerHTML = `
+                               <li><span class="question-label">ক)</span> <span class="question-content-text">${formatTextWithNewLines(cq.question_ka)}</span></li>
+                               <li><span class="question-label">খ)</span> <span class="question-content-text">${formatTextWithNewLines(cq.question_kha)}</span></li>
+                               <li><span class="question-label">গ)</span> <span class="question-content-text">${formatTextWithNewLines(cq.question_ga)}</span></li>
+                               <li><span class="question-label">ঘ)</span> <span class="question-content-text">${formatTextWithNewLines(cq.question_gha)}</span></li>
+                           `;
+                           itemDiv.appendChild(subQuestionsUl);
+
+                           const solutionSection = document.createElement('div');
+                           solutionSection.classList.add('solution-section');
+                           solutionSection.innerHTML = `<h4 class="solution-section-title">উত্তরমালা</h4>`;
+
+                           const q_labels = {'ka': 'ক', 'kha': 'খ', 'ga': 'গ', 'gha': 'ঘ'};
+                           ['ka', 'kha', 'ga', 'gha'].forEach(q_type => {
+                               const solItem = document.createElement('div');
+                               solItem.classList.add('solution-item');
+                               solItem.innerHTML = `
+                                   <div class="question-repeat"><span class="question-label">${q_labels[q_type]})</span> ${formatTextWithNewLines(cq['question_' + q_type])}</div>
+                                   <div class="answer-text">${formatTextWithNewLines(cq['answer_' + q_type])}</div>
+                               `;
+                               solutionSection.appendChild(solItem);
+                           });
+                           itemDiv.appendChild(solutionSection);
+                           questionContentDiv.appendChild(itemDiv);
+
+                       } else { 
+                            if (data.total_items === 0 && page === 1) {
+                               questionContentDiv.innerHTML = '<p class="empty-message"><i class="fas fa-folder-open"></i> এই অধ্যায়ে কোনো সৃজনশীল প্রশ্ন পাওয়া যায়নি।</p>';
+                           } else if (page > totalCqPages && totalCqPages > 0 ) { 
+                               questionContentDiv.innerHTML = '<p class="empty-message"><i class="fas fa-check-double"></i> আপনি সব প্রশ্ন দেখে ফেলেছেন।</p>';
+                           } else {
+                               questionContentDiv.innerHTML = '<p class="empty-message"><i class="fas fa-exclamation-circle"></i> কোনো সৃজনশীল প্রশ্ন এই পৃষ্ঠায় পাওয়া যায়নি।</p>';
+                           }
+                       }
+
+                       if (totalCqPages > 0) {
+                           cqPageInfo.textContent = `প্রশ্ন ${currentCqPage} / ${totalCqPages}`;
+                       } else {
+                           cqPageInfo.textContent = `প্রশ্ন ০ / ০`;
+                       }
+                       prevCqPageBtn.disabled = !data.has_prev;
+                       nextCqPageBtn.disabled = !data.has_next;
+
+                       if (!cq && page > totalCqPages && totalCqPages > 0) {
+                            fetchAndDisplayCreativeQuestion(chapterId, totalCqPages);
+                       } else if (data.total_items === 0) {
+                           prevCqPageBtn.disabled = true;
+                           nextCqPageBtn.disabled = true;
+                       }
+
+                   })
+                   .catch(error => {
+                       loadingCqMessage.style.display = 'none';
+                       console.error('Error fetching creative question:', error);
+                       questionContentDiv.innerHTML = `<p class="error-message"><i class="fas fa-exclamation-triangle"></i> ${error.message}</p>`;
+                       prevCqPageBtn.disabled = true;
+                       nextCqPageBtn.disabled = true;
+                       cqPageInfo.textContent = `প্রশ্ন - / -`;
+                   });
+           }
+
+           if(prevCqPageBtn) {
+               prevCqPageBtn.addEventListener('click', function() {
+                   if (!this.disabled && currentCqPage > 1) { 
+                       fetchAndDisplayCreativeQuestion(currentCqChapterId, currentCqPage - 1);
+                   }
+               });
+           }
+           if(nextCqPageBtn) {
+               nextCqPageBtn.addEventListener('click', function() {
+                   if (!this.disabled && currentCqPage < totalCqPages) { 
+                       fetchAndDisplayCreativeQuestion(currentCqChapterId, currentCqPage + 1);
+                   }
+               });
+           }
+       });
+       </script>
+       {% endblock %}
