@@ -1,0 +1,72 @@
+{% extends "layout.html" %} {# আপনার বেস লেআউট টেমপ্লেট #}
+{% block title %}নতুন অ্যাকাউন্ট তৈরি করুন{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* login.html এর স্টাইল এখানেও ব্যবহার করা যেতে পারে */
+    .auth-form-container {
+        max-width: 450px; margin: 40px auto; padding: 30px;
+        background-color: #ffffff; border: 1px solid #e0e0e0;
+        border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .auth-form-container h1 { text-align: center; margin-bottom: 25px; color: #333; font-size: 1.8em; }
+    .auth-form-container .form-group { margin-bottom: 20px; }
+    .auth-form-container label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+    .auth-form-container input[type="text"],
+    .auth-form-container input[type="email"],
+    .auth-form-container input[type="password"] {
+        width: 100%; padding: 12px; border: 1px solid #ccc;
+        border-radius: 5px; box-sizing: border-box; font-size: 1em;
+    }
+    .auth-form-container input[type="text"]:focus,
+    .auth-form-container input[type="email"]:focus,
+    .auth-form-container input[type="password"]:focus {
+        border-color: #007bff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); outline: none;
+    }
+    .auth-form-container .button { /* .button ক্লাস ব্যবহার করা হয়েছে */
+        width: 100%; padding: 12px; font-size: 1.1em; font-weight: bold;
+        background-color: #28a745; /* নিবন্ধনের জন্য সবুজ বাটন */
+    }
+    .auth-form-container .button:hover {
+        background-color: #218838;
+    }
+    .auth-form-container .switch-auth-link { text-align: center; margin-top: 25px; font-size: 0.95em;}
+    .auth-form-container .switch-auth-link a { color: #007bff; text-decoration: none; font-weight: 500; }
+    .auth-form-container .switch-auth-link a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-form-container">
+    <h1>নতুন অ্যাকাউন্ট তৈরি করুন</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="post" action="{{ url_for('auth.register') }}"> {# auth ব্লুপ্রিন্টের register রুট #}
+        <div class="form-group">
+            <label for="username">ইউজারনেম</label>
+            <input type="text" name="username" id="username" value="{{ request.form.username or '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">ইমেইল (ঐচ্ছিক)</label>
+            <input type="email" name="email" id="email" value="{{ request.form.email or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="password">পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label>
+            <input type="password" name="password" id="password" required minlength="6">
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">পাসওয়ার্ড নিশ্চিত করুন</label>
+            <input type="password" name="confirm_password" id="confirm_password" required minlength="6">
+        </div>
+        <button type="submit" class="button">নিবন্ধন করুন</button>
+    </form>
+    <p class="switch-auth-link">
+        ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="{{ url_for('auth.login') }}">এখানে লগইন করুন</a>
+    </p>
+</div>
+{% endblock %}
