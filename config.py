@@ -7,6 +7,6 @@ class Config:
 
     # PostgreSQL ডাটাবেসের কানেকশন URI
     # আপনার দেওয়া URI টি এখানে ব্যবহার করুন
-    POSTGRES_URI = os.environ.get('DATABASE_URL') or "postgresql://unknown_t0fx_user:ZAG3RGEpGXuVXTP5MjyuZJU6a4VeXykU@dpg-d0upmpjipnbc73eptrbg-a.singapore-postgres.render.com/unknown_t0fx"
+    POSTGRES_URI = os.environ.get('DATABASE_URL') or "postgresql://paathshala_user:MGJKo8bn0WvAHjn4v2twe4nDO4d8bEf4@dpg-d0vbdpnfte5s739flk4g-a/paathshala"
 
     DEBUG = True # ডেভেলপমেন্টের জন্য True, প্রোডাকশনে False করে দিন
