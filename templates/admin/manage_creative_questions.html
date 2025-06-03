@@ -1,0 +1,156 @@
+{% extends "layout.html" %}
+{% block title %}সৃজনশীল প্রশ্ন পরিচালনা{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* manage_mcqs.html থেকে স্টাইল কপি করুন এবং প্রয়োজন অনুযায়ী অ্যাডজাস্ট করুন */
+    .item-list { margin-top: 20px; overflow-x: auto; }
+    .item-list table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .item-list th, .item-list td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em;}
+    .item-list th { background-color: #f2f2f2; font-weight: bold; }
+    .actions a, .actions button { margin-right: 5px; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 0.85em; display:inline-block; margin-bottom:5px;}
+    .actions .edit-btn { background-color: #ffc107; color: black; border:1px solid #e0a800;}
+    .actions .edit-btn:hover { background-color: #e0a800;}
+    .actions .delete-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; }
+    .actions .delete-btn:hover { background-color: #c82333;}
+    .filter-form .selection-group { display: inline-block; margin-right: 15px; vertical-align: top; margin-bottom:10px;}
+    .filter-form .selection-group label {font-weight: normal;}
+    .filter-form button {vertical-align: bottom;}
+    .add-new-btn { background-color: #28a745 !important; margin-bottom: 20px;}
+    .add-new-btn:hover { background-color: #218838 !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>সৃজনশীল প্রশ্ন পরিচালনা করুন</h1>
+    <p><a href="{{ url_for('admin.dashboard') }}">&larr; অ্যাডমিন ড্যাশবোর্ডে ফিরে যান</a></p>
+    <hr>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="GET" action="{{ url_for('manage.creative_questions_list') }}" class="filter-form">
+        <div class="selection-group">
+            <label for="subject_id_filter_cq">বিষয়:</label>
+            <select id="subject_id_filter_cq" name="subject_id" onchange="this.form.submit()">
+                <option value="">-- সব বিষয় --</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if subject.id == selected_subject_id %}selected{% endif %}>{{ subject.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="selection-group">
+            <label for="chapter_id_filter_cq">অধ্যায়:</label>
+            <select id="chapter_id_filter_cq" name="chapter_id" onchange="this.form.submit()">
+                <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                 {% if chapters_for_selected_subject %}
+                    {% for chapter in chapters_for_selected_subject %}
+                        <option value="{{ chapter.id }}" {% if chapter.id == selected_chapter_id %}selected{% endif %}>{{ chapter.name }}</option>
+                    {% endfor %}
+                {% elif selected_subject_id %}
+                     <option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>
+                {% else %}
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                {% endif %}
+            </select>
+        </div>
+    </form>
+    <br>
+    {% if selected_chapter_id %}
+        <a href="{{ url_for('admin.add_creative_question_form', chapter_id=selected_chapter_id) }}" class="button add-new-btn">+ এই অধ্যায়ে নতুন সৃজনশীল প্রশ্ন যোগ করুন</a>
+    {% else %}
+         <a href="{{ url_for('admin.add_creative_question_form') }}" class="button add-new-btn">+ নতুন সৃজনশীল প্রশ্ন যোগ করুন</a>
+    {% endif %}
+
+    <div class="item-list">
+        {% if creative_questions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>উদ্দীপক (সংক্ষিপ্ত)</th>
+                    <th>প্রশ্ন-ক (সংক্ষিপ্ত)</th>
+                    <th>কার্যক্রম</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cq in creative_questions %}
+                <tr>
+                    <td>{{ cq.id }}</td>
+                    <td>{{ cq.uddipak_text[:80] }}{% if cq.uddipak_text|length > 80 %}...{% endif %}</td>
+                    <td>{{ cq.question_ka[:50] }}{% if cq.question_ka|length > 50 %}...{% endif %}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('manage.edit_creative_question', cq_id=cq.id) }}" class="edit-btn">সম্পাদন</a>
+                        <form action="{{ url_for('manage.delete_creative_question', cq_id=cq.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই সৃজনশীল প্রশ্নটি মুছে ফেলতে চান?');">
+                            <button type="submit" class="delete-btn">মুছে ফেলুন</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif selected_chapter_id %}
+        <p style="margin-top:20px;">এই অধ্যায়ে কোনো সৃজনশীল প্রশ্ন পাওয়া যায়নি।</p>
+        {% elif selected_subject_id %}
+        <p style="margin-top:20px;">অনুগ্রহ করে একটি অধ্যায় নির্বাচন করুন।</p>
+        {% else %}
+        <p style="margin-top:20px;">সৃজনশীল প্রশ্ন তালিকা দেখতে অনুগ্রহ করে বিষয় এবং অধ্যায় নির্বাচন করুন।</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    // manage_mcqs.html থেকে JavaScript কপি করে আইডি/ভেরিয়েবল (_cq) পরিবর্তন করুন
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectSelect = document.getElementById('subject_id_filter_cq');
+        const chapterSelect = document.getElementById('chapter_id_filter_cq');
+        const initiallySelectedSubjectId = "{{ selected_subject_id or '' }}";
+        const initiallySelectedChapterId = "{{ selected_chapter_id or '' }}";
+
+        function loadChapters(subjectId, preselectChapterId) {
+            chapterSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            chapterSelect.disabled = true;
+            if (subjectId && subjectId !== "") {
+                fetch(`/api/get_chapters/${subjectId}`) // public_bp API
+                    .then(response => response.json())
+                    .then(data => {
+                        chapterSelect.innerHTML = '<option value="">-- সব অধ্যায় --</option>';
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const option = document.createElement('option');
+                                option.value = chapter.id;
+                                option.textContent = chapter.name;
+                                if (String(chapter.id) === String(preselectChapterId)) {
+                                    option.selected = true;
+                                }
+                                chapterSelect.appendChild(option);
+                            });
+                            chapterSelect.disabled = false;
+                        } else {
+                            chapterSelect.innerHTML = '<option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters:', error);
+                        chapterSelect.innerHTML = '<option value="">অধ্যায় লোড করতে সমস্যা</option>';
+                    });
+            } else {
+                chapterSelect.innerHTML = '<option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>';
+            }
+        }
+        if (initiallySelectedSubjectId) {
+            loadChapters(initiallySelectedSubjectId, initiallySelectedChapterId);
+        } else {
+             chapterSelect.disabled = true;
+        }
+    });
+</script>
+{% endblock %}

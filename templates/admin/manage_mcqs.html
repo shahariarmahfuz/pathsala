@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+{% block title %}MCQ পরিচালনা{% endblock %}
+
+{% block head_extra %}
+<style>
+    .item-list { margin-top: 20px; overflow-x: auto; } /* মোবাইল ডিভাইসের জন্য টেবিল স্ক্রলযোগ্য করা */
+    .item-list table { width: 100%; border-collapse: collapse; min-width: 800px; /* টেবিলের ন্যূনতম প্রস্থ */ }
+    .item-list th, .item-list td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
+    .item-list th { background-color: #f2f2f2; font-weight: bold; }
+    .actions a, .actions button { 
+        margin-right: 5px; padding: 6px 12px; text-decoration: none; 
+        border-radius: 4px; font-size: 0.85em; display: inline-block; margin-bottom: 5px;
+    }
+    .actions .edit-btn { background-color: #ffc107; color: black; border:1px solid #e0a800;}
+    .actions .edit-btn:hover { background-color: #e0a800;}
+    .actions .delete-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; }
+    .actions .delete-btn:hover { background-color: #c82333;}
+    .filter-form .selection-group { display: inline-block; margin-right: 15px; vertical-align: top; margin-bottom: 10px;}
+    .filter-form .selection-group label {font-weight: normal;}
+    .filter-form button {vertical-align: bottom;}
+    .add-new-btn { background-color: #28a745 !important; margin-bottom: 20px;}
+    .add-new-btn:hover { background-color: #218838 !important;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>MCQ পরিচালনা করুন</h1>
+    <p><a href="{{ url_for('admin.dashboard') }}">&larr; অ্যাডমিন ড্যাশবোর্ডে ফিরে যান</a></p>
+    <hr>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="GET" action="{{ url_for('manage.mcqs_list') }}" class="filter-form">
+        <div class="selection-group">
+            <label for="subject_id_filter_mcq">বিষয়:</label>
+            <select id="subject_id_filter_mcq" name="subject_id" onchange="this.form.submit()"> {# বিষয় পরিবর্তনের সাথে সাথে ফর্ম সাবমিট #}
+                <option value="">-- সব বিষয় --</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if subject.id == selected_subject_id %}selected{% endif %}>{{ subject.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="selection-group">
+            <label for="chapter_id_filter_mcq">অধ্যায়:</label>
+            <select id="chapter_id_filter_mcq" name="chapter_id" onchange="this.form.submit()"> {# অধ্যায় পরিবর্তনের সাথে সাথে ফর্ম সাবমিট #}
+                <option value="">-- সব অধ্যায় --</option>
+                {# JavaScript দিয়ে অধ্যায় লোড হবে, নির্বাচিত অধ্যায় selected হবে #}
+                {% if chapters_for_selected_subject %}
+                    {% for chapter in chapters_for_selected_subject %}
+                        <option value="{{ chapter.id }}" {% if chapter.id == selected_chapter_id %}selected{% endif %}>{{ chapter.name }}</option>
+                    {% endfor %}
+                {% elif selected_subject_id %}
+                     <option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>
+                {% else %}
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                {% endif %}
+            </select>
+        </div>
+        {# <button type="submit" class="button">প্রশ্ন দেখুন</button> #} {# onchange এ সাবমিট হচ্ছে, তাই এই বাটন ঐচ্ছিক #}
+    </form>
+    <br>
+    {% if selected_chapter_id %}
+        <a href="{{ url_for('admin.add_mcq_form', chapter_id=selected_chapter_id) }}" class="button add-new-btn">+ এই অধ্যায়ে নতুন MCQ যোগ করুন</a>
+    {% else %}
+         <a href="{{ url_for('admin.add_mcq_form') }}" class="button add-new-btn">+ নতুন MCQ যোগ করুন (অধ্যায় পরে নির্বাচন করুন)</a>
+    {% endif %}
+
+
+    <div class="item-list">
+        {% if mcqs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>প্রশ্ন</th>
+                    <th>সঠিক অপশন</th>
+                    <th>কার্যক্রম</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mcq in mcqs %}
+                <tr>
+                    <td>{{ mcq.id }}</td>
+                    <td>{{ mcq.question_text[:70] }}{% if mcq.question_text|length > 70 %}...{% endif %}</td>
+                    <td>{{ mcq.correct_option.upper() }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('manage.edit_mcq', mcq_id=mcq.id) }}" class="edit-btn">সম্পাদন</a>
+                        <form action="{{ url_for('manage.delete_mcq', mcq_id=mcq.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই MCQ টি মুছে ফেলতে চান?');">
+                            <button type="submit" class="delete-btn">মুছে ফেলুন</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif selected_chapter_id %}
+        <p style="margin-top:20px;">এই অধ্যায়ে কোনো MCQ পাওয়া যায়নি।</p>
+        {% elif selected_subject_id %}
+        <p style="margin-top:20px;">অনুগ্রহ করে একটি অধ্যায় নির্বাচন করুন।</p>
+        {% else %}
+        <p style="margin-top:20px;">MCQ তালিকা দেখতে অনুগ্রহ করে বিষয় এবং অধ্যায় নির্বাচন করুন।</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectSelect = document.getElementById('subject_id_filter_mcq');
+        const chapterSelect = document.getElementById('chapter_id_filter_mcq');
+        // Jinja থেকে পাওয়া মানগুলো স্ট্রিং হিসেবে আসতে পারে, তাই parseInt ব্যবহার করা ভালো
+        const initiallySelectedSubjectId = "{{ selected_subject_id or '' }}"; 
+        const initiallySelectedChapterId = "{{ selected_chapter_id or '' }}";
+
+        function loadChapters(subjectId, preselectChapterId) {
+            chapterSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            chapterSelect.disabled = true;
+            if (subjectId && subjectId !== "") {
+                fetch(`/api/get_chapters/${subjectId}`) // public_bp এর API কল হবে
+                    .then(response => response.json())
+                    .then(data => {
+                        chapterSelect.innerHTML = '<option value="">-- সব অধ্যায় --</option>'; // ডিফল্ট অপশন
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const option = document.createElement('option');
+                                option.value = chapter.id;
+                                option.textContent = chapter.name;
+                                // preselectChapterId স্ট্রিং হতে পারে, তাই chapter.id ও স্ট্রিং এ রূপান্তর করে তুলনা
+                                if (String(chapter.id) === String(preselectChapterId)) {
+                                    option.selected = true;
+                                }
+                                chapterSelect.appendChild(option);
+                            });
+                            chapterSelect.disabled = false;
+                        } else {
+                            chapterSelect.innerHTML = '<option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters:', error);
+                        chapterSelect.innerHTML = '<option value="">অধ্যায় লোড করতে সমস্যা</option>';
+                    });
+            } else {
+                chapterSelect.innerHTML = '<option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>';
+            }
+        }
+
+        // পৃষ্ঠা লোড হওয়ার সময় যদি বিষয় নির্বাচিত থাকে, তাহলে অধ্যায় লোড করুন
+        if (initiallySelectedSubjectId) {
+            loadChapters(initiallySelectedSubjectId, initiallySelectedChapterId);
+        } else {
+             chapterSelect.disabled = true;
+        }
+        // subjectSelect.addEventListener('change', ...) - onchange এ ফর্ম সাবমিট হচ্ছে, তাই এটি আর প্রয়োজন নেই
+    });
+</script>
+{% endblock %}

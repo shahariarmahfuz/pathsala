@@ -1,0 +1,102 @@
+{% extends "layout.html" %} {# আপনার বেস লেআউট টেমপ্লেট #}
+{% block title %}অ্যাডমিন ড্যাশবোর্ড{% endblock %}
+
+{% block head_extra %}
+<style>
+    .admin-dashboard-links {
+        list-style-type: none;
+        padding: 0;
+    }
+    .admin-dashboard-links li {
+        margin-bottom: 15px;
+    }
+    .admin-dashboard-links li a {
+        display: block;
+        padding: 15px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        font-size: 1.1em;
+        text-align: center;
+    }
+    .admin-dashboard-links li a:hover {
+        background-color: #0056b3;
+    }
+    .admin-dashboard-links .sub-links { /* নতুন যোগ এবং পরিচালনার জন্য আলাদা স্টাইল */
+        display: flex;
+        justify-content: space-around;
+        gap: 10px; /* দুটি বাটনের মধ্যে ফাঁক */
+        margin-top: 5px;
+    }
+    .admin-dashboard-links .sub-links a {
+        flex-grow: 1; /* উপলব্ধ স্থান ভাগ করে নেবে */
+        background-color: #17a2b8; /* ভিন্ন রঙ */
+        font-size: 1em;
+        padding: 10px 15px;
+    }
+     .admin-dashboard-links .sub-links a.add-new {
+        background-color: #28a745; /* সবুজ রঙ */
+    }
+    .admin-dashboard-links .sub-links a:hover {
+        background-color: #117a8b;
+    }
+    .admin-dashboard-links .sub-links a.add-new:hover {
+        background-color: #1f7a34;
+    }
+    .section-title {
+        font-size: 1.3em;
+        color: #333;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="text-align: center;">অ্যাডমিন ড্যাশবোর্ড</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <p style="text-align: center; margin-bottom: 30px;">এখান থেকে আপনি ওয়েবসাইটের বিভিন্ন কনটেন্ট পরিচালনা করতে পারবেন।</p>
+
+    <ul class="admin-dashboard-links">
+        <li><a href="{{ url_for('admin.manage_subjects') }}">বিষয় পরিচালনা</a></li>
+        <li><a href="{{ url_for('admin.manage_chapters') }}">অধ্যায় পরিচালনা</a></li>
+
+        <li>
+            <div class="section-title">MCQ প্রশ্নাবলী</div>
+            <div class="sub-links">
+                <a href="{{ url_for('manage.mcqs_list') }}">MCQ তালিকা দেখুন ও পরিচালনা করুন</a>
+                <a href="{{ url_for('admin.add_mcq_form') }}" class="add-new">নতুন MCQ যোগ করুন</a>
+            </div>
+        </li>
+
+        <li>
+            <div class="section-title">সংক্ষিপ্ত প্রশ্নাবলী</div>
+            <div class="sub-links">
+                <a href="{{ url_for('manage.short_questions_list') }}">সংক্ষিপ্ত প্রশ্ন তালিকা দেখুন ও পরিচালনা করুন</a>
+                <a href="{{ url_for('admin.add_short_question_form') }}" class="add-new">নতুন সংক্ষিপ্ত প্রশ্ন যোগ করুন</a>
+            </div>
+        </li>
+
+        <li>
+            <div class="section-title">সৃজনশীল প্রশ্নাবলী</div>
+            <div class="sub-links">
+                <a href="{{ url_for('manage.creative_questions_list') }}">সৃজনশীল প্রশ্ন তালিকা দেখুন ও পরিচালনা করুন</a>
+                <a href="{{ url_for('admin.add_creative_question_form') }}" class="add-new">নতুন সৃজনশীল প্রশ্ন যোগ করুন</a>
+            </div>
+        </li>
+    </ul>
+</div>
+{% endblock %}

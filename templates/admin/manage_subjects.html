@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}বিষয় পরিচালনা{% endblock %}
+
+{% block head_extra %}
+<style>
+    .subject-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    .subject-list li {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+    }
+    .form-section, .list-section {
+        border: 1px solid #e0e0e0; padding: 25px; margin-bottom: 30px;
+        border-radius: 8px; background-color: #fdfdfd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .form-section h2, .list-section h2 {
+        margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; 
+        margin-bottom: 20px; color: #0056b3; font-size: 1.4em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>বিষয় পরিচালনা</h1>
+    <p><a href="{{ url_for('admin.dashboard') }}">&larr; অ্যাডমিন ড্যাশবোর্ডে ফিরে যান</a></p>
+    <hr style="margin-bottom: 30px;">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="form-section">
+        <h2>নতুন বিষয় যোগ করুন</h2>
+        <form method="POST" action="{{ url_for('admin.manage_subjects') }}">
+            <div>
+                <label for="name">বিষয়ের নাম:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <button type="submit" class="button">বিষয় যোগ করুন</button>
+        </form>
+    </div>
+
+    <div class="list-section">
+        <h2>বিদ্যমান বিষয়সমূহ</h2>
+        {% if subjects %}
+        <ul class="subject-list">
+            {% for subject in subjects %}
+            <li>{{ subject.name }} (ID: {{ subject.id }})</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>কোনো বিষয় এখনও যোগ করা হয়নি।</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

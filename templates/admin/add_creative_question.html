@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+{% block title %}{% if is_edit_mode %}সৃজনশীল প্রশ্ন সম্পাদন করুন{% else %}নতুন সৃজনশীল প্রশ্ন যোগ করুন{% endif %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .form-section { border: 1px solid #e0e0e0; padding: 25px; margin-bottom: 30px; border-radius: 8px; background-color: #fdfdfd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .form-section h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; color: #0056b3; font-size: 1.4em; }
+    textarea, input[type="text"] { width: calc(100% - 24px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: SolaimanLipi, Arial, sans-serif; font-size: 1em;}
+    .creative-sub-question { margin-bottom: 20px; padding:15px; border-left: 4px solid #007bff; background-color:#f8f9fa; border-radius: 0 4px 4px 0;}
+    .creative-sub-question label { font-weight: bold; display: block; margin-bottom: 5px;}
+    .creative-sub-question input[type="text"] { margin-bottom:8px; }
+    #json_data_cq { min-height: 250px; font-family: monospace; font-size: 0.95em;}
+    .form-section hr { margin-top: 25px; margin-bottom: 25px; border: 0; border-top: 1px solid #eee; }
+    .alert.alert-error_cq_single, .alert.alert-error_cq_bulk { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;}
+    .alert.alert-success_cq_single, .alert.alert-success_cq_bulk { background-color: #d4edda; color: #155724; border-color: #c3e6cb;}
+    .alert.alert-info_cq_single, .alert.alert-info_cq_bulk { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if is_edit_mode %}সৃজনশীল প্রশ্ন সম্পাদন করুন (ID: {{ cq_data.id }}){% else %}সৃজনশীল প্রশ্ন যোগ করুন{% endif %}</h1>
+    <p>
+        {% if is_edit_mode %}
+            <a href="{{ url_for('manage.creative_questions_list', subject_id=cq_data.subject_id if cq_data else '', chapter_id=cq_data.chapter_id if cq_data else '') }}">&larr; সৃজনশীল প্রশ্ন তালিকায় ফিরে যান</a>
+        {% else %}
+            <a href="{{ url_for('admin.dashboard') }}">&larr; অ্যাডমিন ড্যাশবোর্ডে ফিরে যান</a>
+            | <a href="{{ url_for('manage.creative_questions_list') }}">সৃজনশীল প্রশ্ন তালিকা দেখুন</a>
+        {% endif %}
+    </p>
+    <hr>
+
+    <div class="form-section">
+        <h2>{% if is_edit_mode %}প্রশ্নের তথ্য পরিবর্তন করুন{% else %}একটি সৃজনশীল প্রশ্ন যোগ করুন{% endif %}</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category.startswith('error_cq_single') or category.startswith('success_cq_single') or category.startswith('info_cq_single') %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ form_action }}"> {# রুট থেকে form_action আসবে #}
+            <div class="selection-group">
+                <label for="subject-select-single-cq">বিষয় নির্বাচন করুন:</label>
+                <select id="subject-select-single-cq" name="subject_id_for_cq_single_load" required {% if is_edit_mode %}disabled{% endif %}>
+                    <option value="">-- বিষয় --</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if cq_data and cq_data.subject_id == subject.id %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                 {% if is_edit_mode %}<small>সম্পাদনার সময় বিষয় পরিবর্তন করা যাবে না। অধ্যায় পরিবর্তন করা যাবে।</small>{% endif %}
+            </div>
+            <div class="selection-group">
+                <label for="chapter-select-single-cq">অধ্যায় নির্বাচন করুন:</label>
+                <select id="chapter-select-single-cq" name="chapter_id_single_cq" required>
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                </select>
+            </div>
+            <hr>
+            <div>
+                <label for="uddipak_text_single_cq">উদ্দীপক:</label><br>
+                <textarea name="uddipak_text_single_cq" id="uddipak_text_single_cq" rows="6" required>{{ cq_data.uddipak_text if cq_data else '' }}</textarea>
+            </div>
+
+            {% for q_type, q_label in [('ka', 'ক'), ('kha', 'খ'), ('ga', 'গ'), ('gha', 'ঘ')] %}
+            <div class="creative-sub-question">
+                <label for="question_{{ q_type }}_single_cq">প্রশ্ন ({{ q_label }}):</label>
+                <input type="text" name="question_{{ q_type }}_single_cq" id="question_{{ q_type }}_single_cq" value="{{ cq_data['question_' + q_type] if cq_data else '' }}" required>
+
+                <label for="answer_{{ q_type }}_single_cq">উত্তর ({{ q_label }}):</label>
+                <textarea name="answer_{{ q_type }}_single_cq" id="answer_{{ q_type }}_single_cq" rows="4" required>{{ cq_data['answer_' + q_type] if cq_data else '' }}</textarea>
+            </div>
+            {% endfor %}
+            <button type="submit" class="button">{% if is_edit_mode %}আপডেট করুন{% else %}একক সৃজনশীল প্রশ্ন যোগ করুন{% endif %}</button>
+        </form>
+    </div>
+
+    {% if not is_edit_mode %}
+    <div class="form-section">
+        <h2>একাধিক সৃজনশীল প্রশ্ন একসাথে JSON এর মাধ্যমে যোগ করুন</h2>
+        <p>নমুনা JSON ফরম্যাট: <br><code>[{"uddipak_text": "...", "question_ka": "...", "answer_ka": "...", ...}, {...}]</code></p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category.startswith('error_cq_bulk') or category.startswith('success_cq_bulk') or category.startswith('info_cq_bulk') %}
+                         <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('admin.bulk_add_creative_question') }}"> {# admin blueprint #}
+            <div class="selection-group">
+                <label for="subject-select-bulk-cq">বিষয় নির্বাচন করুন:</label>
+                <select id="subject-select-bulk-cq" name="subject_id_for_cq_bulk_load" required>
+                    <option value="">-- বিষয় --</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="selection-group">
+                <label for="chapter-select-bulk-cq">অধ্যায় নির্বাচন করুন:</label>
+                <select id="chapter-select-bulk-cq" name="chapter_id_bulk_cq" required>
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                </select>
+            </div>
+            <hr>
+            <div>
+                <label for="json_data_cq">JSON ডেটা এখানে পেস্ট করুন:</label><br>
+                <textarea name="json_data_cq" id="json_data_cq" required></textarea>
+            </div>
+            <button type="submit" class="button">JSON দিয়ে সৃজনশীল প্রশ্ন যোগ করুন</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    function setupChapterLoader(subjectSelectId, chapterSelectId, preselectedSubjectId, preselectedChapterId) {
+        const subjectSelect = document.getElementById(subjectSelectId);
+        const chapterSelect = document.getElementById(chapterSelectId);
+        if (!subjectSelect || !chapterSelect) return;
+
+        function loadChaptersForSubject(subjectId, chapterToSelect) {
+            chapterSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            chapterSelect.disabled = true;
+            if (subjectId && String(subjectId) !== "") {
+                fetch(`/api/get_chapters/${subjectId}`) // public_bp API
+                    .then(response => { if (!response.ok) throw new Error('Network error'); return response.json(); })
+                    .then(data => {
+                        chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const option = document.createElement('option');
+                                option.value = chapter.id;
+                                option.textContent = chapter.name;
+                                if (chapterToSelect && parseInt(chapter.id) === parseInt(chapterToSelect)) {
+                                    option.selected = true;
+                                }
+                                chapterSelect.appendChild(option);
+                            });
+                            chapterSelect.disabled = false;
+                        } else {
+                            chapterSelect.innerHTML = '<option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters:', error);
+                        chapterSelect.innerHTML = '<option value="">অধ্যায় লোড করতে সমস্যা</option>';
+                    });
+            } else {
+                chapterSelect.innerHTML = '<option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>';
+            }
+        }
+        subjectSelect.addEventListener('change', function() {
+            loadChaptersForSubject(this.value, null);
+        });
+        if (preselectedSubjectId) {
+            subjectSelect.value = preselectedSubjectId;
+            loadChaptersForSubject(preselectedSubjectId, preselectedChapterId);
+        } else {
+             chapterSelect.disabled = true;
+        }
+    }
+    // একক সৃজনশীল প্রশ্ন ফর্মের জন্য
+    const initialSubjectIdSingleCq = {% if cq_data and cq_data.subject_id %}{{ cq_data.subject_id }}{% else %}'{{ request.args.get("subject_id", "") }}'{% endif %};
+    const initialChapterIdSingleCq = {% if cq_data and cq_data.chapter_id %}{{ cq_data.chapter_id }}{% else %}'{{ request.args.get("chapter_id", "") }}'{% endif %};
+    setupChapterLoader('subject-select-single-cq', 'chapter-select-single-cq', initialSubjectIdSingleCq || null, initialChapterIdSingleCq || null);
+
+    {% if not is_edit_mode %}
+    // বাল্ক সৃজনশীল প্রশ্ন ফর্মের জন্য
+    setupChapterLoader('subject-select-bulk-cq', 'chapter-select-bulk-cq', null, null);
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "layout.html" %}
+{% block title %}{% if is_edit_mode %}সংক্ষিপ্ত প্রশ্ন সম্পাদন করুন{% else %}নতুন সংক্ষিপ্ত প্রশ্ন যোগ করুন{% endif %}{% endblock %}
+
+{% block head_extra %}
+<style>
+    .form-section { border: 1px solid #e0e0e0; padding: 25px; margin-bottom: 30px; border-radius: 8px; background-color: #fdfdfd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .form-section h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; color: #0056b3; }
+    textarea#json_data_sq, textarea#question_text_single_sq, textarea#answer_text_single_sq { 
+        width: calc(100% - 24px); padding: 10px; border: 1px solid #ccc; 
+        border-radius: 4px; box-sizing: border-box; font-family: SolaimanLipi, Arial, sans-serif; font-size: 1em;
+    }
+    #json_data_sq { min-height: 200px; font-family: monospace;}
+    .form-section hr { margin-top: 25px; margin-bottom: 25px; border: 0; border-top: 1px solid #eee; }
+    .alert.alert-error_sq_single, .alert.alert-error_sq_bulk { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;}
+    .alert.alert-success_sq_single, .alert.alert-success_sq_bulk { background-color: #d4edda; color: #155724; border-color: #c3e6cb;}
+    .alert.alert-info_sq_single, .alert.alert-info_sq_bulk { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if is_edit_mode %}সংক্ষিপ্ত প্রশ্ন সম্পাদন করুন (ID: {{ sq_data.id }}){% else %}সংক্ষিপ্ত প্রশ্ন যোগ করুন{% endif %}</h1>
+    <p>
+        {% if is_edit_mode %}
+            <a href="{{ url_for('manage.short_questions_list', subject_id=sq_data.subject_id if sq_data else '', chapter_id=sq_data.chapter_id if sq_data else '') }}">&larr; সংক্ষিপ্ত প্রশ্ন তালিকায় ফিরে যান</a>
+        {% else %}
+            <a href="{{ url_for('admin.dashboard') }}">&larr; অ্যাডমিন ড্যাশবোর্ডে ফিরে যান</a>
+            | <a href="{{ url_for('manage.short_questions_list') }}">সংক্ষিপ্ত প্রশ্ন তালিকা দেখুন</a>
+        {% endif %}
+    </p>
+    <hr>
+
+    <div class="form-section">
+        <h2>{% if is_edit_mode %}প্রশ্নের তথ্য পরিবর্তন করুন{% else %}একটি সংক্ষিপ্ত প্রশ্ন যোগ করুন{% endif %}</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                     {% if category == 'error_sq_single' or category == 'success_sq_single' or category == 'info_sq_single' %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ form_action }}">
+            <div class="selection-group">
+                <label for="subject-select-single-sq">বিষয় নির্বাচন করুন:</label>
+                <select id="subject-select-single-sq" name="subject_id_for_sq_single_load" required {% if is_edit_mode %}disabled{% endif %}>
+                    <option value="">-- বিষয় --</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if sq_data and sq_data.subject_id == subject.id %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if is_edit_mode %}<small>সম্পাদনার সময় বিষয় পরিবর্তন করা যাবে না। অধ্যায় পরিবর্তন করা যাবে।</small>{% endif %}
+            </div>
+            <div class="selection-group">
+                <label for="chapter-select-single-sq">অধ্যায় নির্বাচন করুন:</label>
+                <select id="chapter-select-single-sq" name="chapter_id_single_sq" required>
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                </select>
+            </div>
+            <hr>
+            <div>
+                <label for="question_text_single_sq">প্রশ্ন:</label><br>
+                <textarea name="question_text_single_sq" id="question_text_single_sq" rows="4" required>{{ sq_data.question_text if sq_data else '' }}</textarea>
+            </div>
+            <div>
+                <label for="answer_text_single_sq">উত্তর:</label><br>
+                <textarea name="answer_text_single_sq" id="answer_text_single_sq" rows="6" required>{{ sq_data.answer_text if sq_data else '' }}</textarea>
+            </div>
+            <button type="submit" class="button">{% if is_edit_mode %}আপডেট করুন{% else %}একক সংক্ষিপ্ত প্রশ্ন যোগ করুন{% endif %}</button>
+        </form>
+    </div>
+
+    {% if not is_edit_mode %}
+    <div class="form-section">
+        <h2>একাধিক সংক্ষিপ্ত প্রশ্ন একসাথে JSON এর মাধ্যমে যোগ করুন</h2>
+        <p>নমুনা JSON ফরম্যাট: <br><code>[{"question_text": "প্রশ্ন...", "answer_text": "উত্তর..."}, {...}]</code></p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'error_sq_bulk' or category == 'success_sq_bulk' or category == 'info_sq_bulk' %}
+                         <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('admin.bulk_add_short_question') }}"> {# admin blueprint #}
+            <div class="selection-group">
+                <label for="subject-select-bulk-sq">বিষয় নির্বাচন করুন:</label>
+                <select id="subject-select-bulk-sq" name="subject_id_for_sq_bulk_load" required>
+                    <option value="">-- বিষয় --</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="selection-group">
+                <label for="chapter-select-bulk-sq">অধ্যায় নির্বাচন করুন:</label>
+                <select id="chapter-select-bulk-sq" name="chapter_id_bulk_sq" required>
+                    <option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>
+                </select>
+            </div>
+            <hr>
+            <div>
+                <label for="json_data_sq">JSON ডেটা এখানে পেস্ট করুন:</label><br>
+                <textarea name="json_data_sq" id="json_data_sq" required></textarea>
+            </div>
+            <button type="submit" class="button">JSON দিয়ে সংক্ষিপ্ত প্রশ্ন যোগ করুন</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    function setupChapterLoader(subjectSelectId, chapterSelectId, preselectedSubjectId, preselectedChapterId) {
+        const subjectSelect = document.getElementById(subjectSelectId);
+        const chapterSelect = document.getElementById(chapterSelectId);
+        if (!subjectSelect || !chapterSelect) return;
+
+        function loadChaptersForSubject(subjectId, chapterToSelect) {
+            chapterSelect.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            chapterSelect.disabled = true;
+            if (subjectId && String(subjectId) !== "") {
+                fetch(`/api/get_chapters/${subjectId}`) // public_bp API
+                    .then(response => { if (!response.ok) throw new Error('Network error'); return response.json(); })
+                    .then(data => {
+                        chapterSelect.innerHTML = '<option value="">-- অধ্যায় নির্বাচন করুন --</option>';
+                        if (data.chapters && data.chapters.length > 0) {
+                            data.chapters.forEach(chapter => {
+                                const option = document.createElement('option');
+                                option.value = chapter.id;
+                                option.textContent = chapter.name;
+                                if (chapterToSelect && parseInt(chapter.id) === parseInt(chapterToSelect)) {
+                                    option.selected = true;
+                                }
+                                chapterSelect.appendChild(option);
+                            });
+                            chapterSelect.disabled = false;
+                        } else {
+                            chapterSelect.innerHTML = '<option value="">এই বিষয়ে কোনো অধ্যায় নেই</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chapters:', error);
+                        chapterSelect.innerHTML = '<option value="">অধ্যায় লোড করতে সমস্যা</option>';
+                    });
+            } else {
+                chapterSelect.innerHTML = '<option value="">-- প্রথমে বিষয় নির্বাচন করুন --</option>';
+            }
+        }
+        subjectSelect.addEventListener('change', function() {
+            loadChaptersForSubject(this.value, null);
+        });
+        if (preselectedSubjectId) {
+            subjectSelect.value = preselectedSubjectId; // Ensure subject dropdown is set
+            loadChaptersForSubject(preselectedSubjectId, preselectedChapterId);
+        } else {
+            chapterSelect.disabled = true;
+        }
+    }
+    // একক সংক্ষিপ্ত প্রশ্ন ফর্মের জন্য
+    const initialSubjectIdSingleSq = {% if sq_data and sq_data.subject_id %}{{ sq_data.subject_id }}{% else %}'{{ request.args.get("subject_id", "") }}'{% endif %};
+    const initialChapterIdSingleSq = {% if sq_data and sq_data.chapter_id %}{{ sq_data.chapter_id }}{% else %}'{{ request.args.get("chapter_id", "") }}'{% endif %};
+    setupChapterLoader('subject-select-single-sq', 'chapter-select-single-sq', initialSubjectIdSingleSq || null, initialChapterIdSingleSq || null);
+
+    {% if not is_edit_mode %}
+    // বাল্ক সংক্ষিপ্ত প্রশ্ন ফর্মের জন্য
+    setupChapterLoader('subject-select-bulk-sq', 'chapter-select-bulk-sq', null, null);
+    {% endif %}
+</script>
+{% endblock %}
